@@ -4,6 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
+        <meta name="cart-count-url" content="{{ route('cart.count') }}">
 
         <title>{{ config('app.name', 'Meubel Dua Putra') }}</title>
 
@@ -17,7 +18,7 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-        <style>[x-cloak]{display:none!important;}</style>
+        <style nonce="{{ $cspNonce ?? '' }}">[x-cloak]{display:none!important;}</style>
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100">
@@ -55,6 +56,19 @@
                 {{ $slot }}
             </main>
             
+            <!-- Confirm Modal (custom) -->
+            <div id="confirm-modal" x-cloak class="hidden fixed inset-0 z-50 items-center justify-center">
+                <div class="absolute inset-0 bg-black/40"></div>
+                <div class="relative bg-white rounded-lg shadow-lg z-60 max-w-md w-full p-6">
+                    <h3 id="confirm-modal-title" class="text-lg font-semibold mb-2">Konfirmasi</h3>
+                    <p id="confirm-modal-message" class="text-sm text-gray-700 mb-4">Apakah Anda yakin?</p>
+                    <div class="flex justify-end gap-2">
+                        <button id="confirm-modal-cancel" class="px-4 py-2 bg-gray-100 text-gray-800 rounded">Batal</button>
+                        <button id="confirm-modal-ok" class="px-4 py-2 bg-amber-600 text-white rounded">Simpan</button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Shared Footer -->
             @include('components.footer')
         </div>
@@ -62,29 +76,29 @@
         <!-- Chat Widget -->
         @auth
         @if(auth()->user()->role === 'user')
-        <div x-data="chatWidget" x-init="initChat()" class="fixed bottom-6 right-6 z-60">
+        <div x-data="chatWidget" x-init="initChat()" class="fixed bottom-6 right-6 z-70 pointer-events-auto">
             <!-- Chat Button -->
-            <button @click="toggleChat()" 
-                    class="bg-amber-600 hover:bg-amber-700 text-white rounded-full p-4 shadow-lg transition transform hover:scale-105 flex items-center justify-center">
+                    <button @click.stop="toggleChat()" 
+                    class="bg-amber-600 hover:bg-amber-700 text-white rounded-full p-4 shadow-lg transition transform hover:scale-105 flex items-center justify-center pointer-events-auto">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                 </svg>
             </button>
 
                 <!-- Chat Window -->
-            <div x-show="isOpen" 
+                <div x-show="isOpen" x-cloak @click.stop
                  x-transition:enter="transition ease-out duration-300"
                  x-transition:enter-start="opacity-0 translate-y-4 scale-95"
                  x-transition:enter-end="opacity-100 translate-y-0 scale-100"
                  x-transition:leave="transition ease-in duration-200"
                  x-transition:leave-start="opacity-100 translate-y-0 scale-100"
                  x-transition:leave-end="opacity-0 translate-y-4 scale-95"
-                 class="absolute bottom-20 right-0 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100 hidden">
+                 class="absolute bottom-20 right-0 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
                 
                 <!-- Header -->
                 <div class="bg-amber-600 p-4 flex justify-between items-center text-white">
                     <h3 class="font-bold">Live Chat Admin</h3>
-                    <button @click="toggleChat()" class="hover:text-gray-200 focus:outline-none">
+                    <button @click.stop="toggleChat()" class="hover:text-gray-200 focus:outline-none">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
@@ -119,93 +133,105 @@
         </div>
 
         <script nonce="{{ $cspNonce ?? '' }}">
-            document.addEventListener('alpine:init', () => {
-                Alpine.data('chatWidget', () => ({
-                    isOpen: false,
-                    messages: [],
-                    newMessage: '',
-                    interval: null,
-                    endpoints: {
-                        getMessages: '{{ route('chat.getMessages') }}',
-                        sendMessage: '{{ route('chat.sendMessage') }}'
-                    },
+            (function(){
+                const registerChatWidget = () => {
+                    Alpine.data('chatWidget', () => ({
+                        isOpen: false,
+                        messages: [],
+                        newMessage: '',
+                        interval: null,
+                        endpoints: {
+                            getMessages: '{{ route('chat.getMessages') }}',
+                            sendMessage: '{{ route('chat.sendMessage') }}'
+                        },
 
-                    initChat() {
-                        console.log('Chat widget initialized');
-                        this.fetchMessages();
-                    },
-
-                    toggleChat() {
-                        this.isOpen = !this.isOpen;
-                        if (this.isOpen) {
+                        initChat() {
+                            console.log('Chat widget initialized');
                             this.fetchMessages();
-                            this.scrollToBottom();
-                            this.startPolling();
-                        } else {
-                            this.stopPolling();
-                        }
-                    },
+                        },
 
-                    startPolling() {
-                        if (!this.interval) {
-                            this.interval = setInterval(() => {
+                        toggleChat() {
+                            console.log('toggleChat called, before:', this.isOpen);
+                            this.isOpen = !this.isOpen;
+                            console.log('toggleChat after:', this.isOpen);
+                            if (this.isOpen) {
                                 this.fetchMessages();
-                            }, 3000);
+                                this.scrollToBottom();
+                                this.startPolling();
+                            } else {
+                                this.stopPolling();
+                            }
+                        },
+
+                        startPolling() {
+                            if (!this.interval) {
+                                this.interval = setInterval(() => {
+                                    this.fetchMessages();
+                                }, 3000);
+                            }
+                        },
+
+                        stopPolling() {
+                            if (this.interval) {
+                                clearInterval(this.interval);
+                                this.interval = null;
+                            }
+                        },
+
+                        async fetchMessages() {
+                            try {
+                                const response = await fetch(this.endpoints.getMessages);
+                                const data = await response.json();
+                                this.messages = data;
+                            } catch (error) {
+                                console.error('Error fetching messages:', error);
+                            }
+                        },
+
+                        async sendMessage() {
+                            console.log('sendMessage called, message:', this.newMessage);
+                            if (!this.newMessage.trim()) return;
+
+                            try {
+                                const response = await fetch(this.endpoints.sendMessage, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                    },
+                                    body: JSON.stringify({ message: this.newMessage })
+                                });
+                                
+                                const data = await response.json();
+                                console.log('sendMessage response', data);
+                                this.messages.push(data);
+                                this.newMessage = '';
+                                this.$nextTick(() => this.scrollToBottom());
+                            } catch (error) {
+                                console.error('Error sending message:', error);
+                            }
+                        },
+
+                        scrollToBottom() {
+                            const container = document.getElementById('chat-messages');
+                            if (container) {
+                                container.scrollTop = container.scrollHeight;
+                            }
+                        },
+
+                        formatTime(dateString) {
+                            const date = new Date(dateString);
+                            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                         }
-                    },
+                    }));
+                };
 
-                    stopPolling() {
-                        if (this.interval) {
-                            clearInterval(this.interval);
-                            this.interval = null;
-                        }
-                    },
-
-                    async fetchMessages() {
-                        try {
-                            const response = await fetch(this.endpoints.getMessages);
-                            const data = await response.json();
-                            this.messages = data;
-                        } catch (error) {
-                            console.error('Error fetching messages:', error);
-                        }
-                    },
-
-                    async sendMessage() {
-                        if (!this.newMessage.trim()) return;
-
-                        try {
-                            const response = await fetch(this.endpoints.sendMessage, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                                },
-                                body: JSON.stringify({ message: this.newMessage })
-                            });
-                            
-                            const data = await response.json();
-                            this.messages.push(data);
-                            this.newMessage = '';
-                            this.$nextTick(() => this.scrollToBottom());
-                        } catch (error) {
-                            console.error('Error sending message:', error);
-                        }
-                    },
-
-                    scrollToBottom() {
-                        const container = document.getElementById('chat-messages');
-                        if (container) {
-                            container.scrollTop = container.scrollHeight;
-                        }
-                    },
-
-                    formatTime(dateString) {
-                        const date = new Date(dateString);
-                        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                    }
-                }));
-            });
+                if (window.Alpine && typeof window.Alpine.data === 'function') {
+                    registerChatWidget();
+                } else {
+                    document.addEventListener('alpine:init', registerChatWidget);
+                }
+            })();
         </script>
         @endif
         @endauth
@@ -288,11 +314,121 @@
                     }, true);
 
                     // Auto-submit selects
-                    document.querySelectorAll('select[data-auto-submit]').forEach(function(sel){
-                        sel.addEventListener('change', function(){
-                            var form = sel.closest('form'); if (form) form.submit();
-                        });
+                    // Initialize prev-value store for selects so we can revert if user cancels
+                    document.querySelectorAll('select[data-auto-submit]').forEach(function(s){
+                        try { s.dataset.prev = s.value; } catch(e){}
                     });
+
+                    // Helper: show custom confirm modal, returns Promise<boolean>
+                    function showConfirmModal(message) {
+                        return new Promise(function(resolve){
+                            try {
+                                var modal = document.getElementById('confirm-modal');
+                                var msg = document.getElementById('confirm-modal-message');
+                                var btnOk = document.getElementById('confirm-modal-ok');
+                                var btnCancel = document.getElementById('confirm-modal-cancel');
+                                if (!modal || !msg || !btnOk || !btnCancel) return resolve(window.confirm(message));
+
+                                msg.textContent = message;
+                                modal.classList.remove('hidden');
+                                modal.classList.add('flex');
+
+                                function cleanup() {
+                                    modal.classList.add('hidden');
+                                    modal.classList.remove('flex');
+                                    btnOk.removeEventListener('click', onOk);
+                                    btnCancel.removeEventListener('click', onCancel);
+                                    document.removeEventListener('keydown', onKey);
+                                }
+
+                                function onOk(e){ e.preventDefault(); cleanup(); resolve(true); }
+                                function onCancel(e){ e.preventDefault(); cleanup(); resolve(false); }
+                                function onKey(e){ if (e.key === 'Escape') { cleanup(); resolve(false); } }
+
+                                btnOk.addEventListener('click', onOk);
+                                btnCancel.addEventListener('click', onCancel);
+                                document.addEventListener('keydown', onKey);
+                            } catch (err) {
+                                return resolve(window.confirm(message));
+                            }
+                        });
+                    }
+
+                    // Delegated handler: when any <select data-auto-submit> changes, ask for confirm then send AJAX PATCH
+                    document.addEventListener('change', async function(e){
+                        var target = e.target;
+                        if (!target.matches || !target.matches('select[data-auto-submit]')) return;
+                        try {
+                            console.debug('[auto-submit] select changed', target.name, target.value);
+                            var form = target.closest('form');
+                            if (!form) return;
+                            // previous value (to revert if user cancels)
+                            var prev = target.dataset.prev !== undefined ? target.dataset.prev : target.getAttribute('value') || '';
+
+                            // show custom modal and wait for answer
+                            var ok = await showConfirmModal('Simpan perubahan status ke "' + target.value + '"?');
+                            if (!ok) {
+                                // revert selection
+                                try { target.value = prev; } catch(e){}
+                                return;
+                            }
+                            var action = form.getAttribute('action');
+                            var method = (form.querySelector('input[name="_method"]') || {}).value || form.method || 'POST';
+                            // Build payload
+                            var data = new FormData();
+                            data.append('status', target.value);
+                            // include _method if patch
+                            if (method && method.toUpperCase() === 'PATCH') data.append('_method', 'PATCH');
+                            // CSRF token
+                            var tokenMeta = document.querySelector('meta[name="csrf-token"]');
+                            var csrf = tokenMeta ? tokenMeta.getAttribute('content') : '';
+
+                            console.debug('[auto-submit] sending AJAX to', action, 'status=', target.value);
+                            // show inline spinner and disable select while saving
+                            try { target.__saving = true; target.disabled = true; } catch(e){}
+                            var spinner = document.createElement('span');
+                            spinner.className = 'inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full ms-2 animate-spin';
+                            spinner.setAttribute('aria-hidden','true');
+                            target.parentNode && target.parentNode.appendChild(spinner);
+
+                            fetch(action, {
+                                method: 'POST',
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'X-CSRF-TOKEN': csrf,
+                                    'Accept': 'application/json'
+                                },
+                                body: data,
+                                credentials: 'same-origin'
+                            }).then(function(resp){
+                                if (!resp.ok) throw resp;
+                                return resp.json();
+                            }).then(function(json){
+                                console.debug('[auto-submit] update response', json);
+                                // remove spinner and re-enable select
+                                try { if (spinner && spinner.parentNode) spinner.parentNode.removeChild(spinner); } catch(e){}
+                                try { target.disabled = false; target.__saving = false; } catch(e){}
+                                // update stored prev value so future cancels revert to this saved value
+                                try { target.dataset.prev = target.value; } catch(e){}
+                                // Optionally update select class styling based on returned status
+                                if (json && json.status) {
+                                    var s = target;
+                                    s.classList.remove('bg-yellow-100','text-yellow-700','bg-blue-100','text-blue-700','bg-green-100','text-green-700','bg-red-100','text-red-700');
+                                    if (json.status === 'pending') s.classList.add('bg-yellow-100','text-yellow-700');
+                                    else if (json.status === 'processing') s.classList.add('bg-blue-100','text-blue-700');
+                                    else if (json.status === 'completed') s.classList.add('bg-green-100','text-green-700');
+                                    else s.classList.add('bg-red-100','text-red-700');
+                                }
+                            }).catch(function(err){
+                                console.warn('[auto-submit] update failed', err);
+                                // remove spinner and re-enable select
+                                try { if (spinner && spinner.parentNode) spinner.parentNode.removeChild(spinner); } catch(e){}
+                                try { target.disabled = false; target.__saving = false; } catch(e){}
+                            });
+                        } catch (e) {
+                            console.error('[auto-submit] handler error', e);
+                        }
+                    }, false);
                 })();
             </script>
     </body>

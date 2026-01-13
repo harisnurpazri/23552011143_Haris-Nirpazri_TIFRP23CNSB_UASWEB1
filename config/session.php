@@ -198,9 +198,12 @@ return [
     |
     */
 
-    'secure' => env('SESSION_SECURE_COOKIE', false),
-    // Use 'lax' by default to preserve common cross-site flows in development.
-    'same_site' => env('SESSION_SAME_SITE', 'lax'),
+    // Make cookies secure by default in production. Developers can override via
+    // the SESSION_SECURE_COOKIE env var for local testing.
+    'secure' => env('SESSION_SECURE_COOKIE', (env('APP_ENV') === 'production')),
+    // Use 'strict' in production to reduce CSRF attack surface; default to 'lax'
+    // for development compatibility unless overridden by SESSION_SAME_SITE.
+    'same_site' => env('SESSION_SAME_SITE', (env('APP_ENV') === 'production' ? 'strict' : 'lax')),
 
     /*
     |--------------------------------------------------------------------------

@@ -39,8 +39,17 @@ class SecureHeaders
         $response->headers->set('Permissions-Policy', 'geolocation=(), microphone=()');
 
         // HTTP Strict Transport Security (HSTS): 1 year, include subdomains, preload
-        // Note: enable only if your site is fully served over HTTPS
-        $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+        // Only add HSTS when the request is secure (HTTPS) or APP_URL is configured to https
+        try {
+            $appUrl = config('app.url') ?? env('APP_URL');
+            $isHttps = $request->isSecure() || (is_string($appUrl) && str_starts_with($appUrl, 'https'));
+        } catch (\Throwable $e) {
+            $isHttps = false;
+        }
+
+        if ($isHttps) {
+            $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+        }
 
         // Content Security Policy (more specific). Adjust hosts below to match your external CDNs.
         // This policy allows scripts/styles from self and the common CDNs used (cdn.jsdelivr.net,cdnjs),
@@ -48,7 +57,10 @@ class SecureHeaders
         // Build CSP using nonce for inline scripts/styles and limiting external hosts.
         $cspParts = [
             "default-src 'self' https:",
-            "script-src 'self' 'nonce-{$nonce}' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https:",
+            // Note: Alpine.js evaluates template expressions using Function/new Function which requires
+            // 'unsafe-eval' in CSP. Adding it here restores Alpine behaviour. For stricter security,
+            // consider refactoring templates to avoid inline expressions or use a CSP-friendly Alpine build.
+            "script-src 'self' 'nonce-{$nonce}' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https:",
             "style-src 'self' 'nonce-{$nonce}' 'unsafe-inline' https://fonts.googleapis.com https:",
             "img-src 'self' data: https:",
             "font-src 'self' https://fonts.gstatic.com data:",
@@ -59,7 +71,8 @@ class SecureHeaders
             "upgrade-insecure-requests",
         ];
 
-        $response->headers->set('Content-Security-Policy', implode(' ', $cspParts));
+        // Join with semicolons so each directive is properly separated (required by CSP syntax)
+        $response->headers->set('Content-Security-Policy', implode('; ', $cspParts));
 
         return $response;
     }

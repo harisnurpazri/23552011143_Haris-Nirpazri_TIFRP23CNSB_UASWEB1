@@ -71,6 +71,11 @@ class CartController extends Controller
         $product = Produk::findOrFail($id);
         
         if (!$product->isInStock()) {
+            // For AJAX callers, return JSON error; otherwise normal redirect back
+            if ($request->ajax() || $request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
+                return response()->json(['success' => false, 'message' => 'Produk tidak tersedia.'], 422);
+            }
+
             return back()->with('error', 'Produk tidak tersedia.');
         }
 
@@ -84,7 +89,8 @@ class CartController extends Controller
 
         session(['cart' => $cart]);
 
-        if ($request->wantsJson()) {
+        // If this was called via AJAX/fetch, always return JSON so frontend can update UI reliably.
+        if ($request->ajax() || $request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
             return response()->json([
                 'success' => true,
                 'message' => 'Produk ditambahkan ke keranjang!',
@@ -92,6 +98,7 @@ class CartController extends Controller
             ]);
         }
 
+        // Otherwise perform normal redirect back for classic form submit
         return back()->with('success', 'Produk ditambahkan ke keranjang!');
     }
 
@@ -239,6 +246,17 @@ class CartController extends Controller
         
         return view('cart.invoice', [
             'order' => $order,
+        ]);
+    }
+
+    /**
+     * Return simple cart count as JSON (for JS fallback)
+     */
+    public function count(Request $request)
+    {
+        $cart = $request->session()->get('cart', []);
+        return response()->json([
+            'cartCount' => array_sum($cart),
         ]);
     }
 }

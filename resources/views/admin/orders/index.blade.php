@@ -61,22 +61,15 @@
                     </td>
                     <td class="px-6 py-4 text-right font-bold text-amber-700">{{ $order->formatted_total }}</td>
                     <td class="px-6 py-4 text-center">
-                        <form action="{{ route('admin.orders.update', $order->id) }}" method="POST">
-                            @csrf
-                            @method('PATCH')
-                                <select name="status" data-auto-submit 
-                                    class="px-3 py-1 rounded-full text-sm font-semibold border-0
-                                        @if($order->status === 'pending') bg-yellow-100 text-yellow-700
-                                        @elseif($order->status === 'processing') bg-blue-100 text-blue-700
-                                        @elseif($order->status === 'completed') bg-green-100 text-green-700
-                                        @else bg-red-100 text-red-700
-                                        @endif">
-                                <option value="pending" {{ $order->status === 'pending' ? 'selected' : '' }}>Pending</option>
-                                <option value="processing" {{ $order->status === 'processing' ? 'selected' : '' }}>Processing</option>
-                                <option value="completed" {{ $order->status === 'completed' ? 'selected' : '' }}>Completed</option>
-                                <option value="cancelled" {{ $order->status === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
-                            </select>
-                        </form>
+                        @php $s = $order->status; @endphp
+                        <span class="px-3 py-1 rounded-full text-sm font-semibold border-0
+                            @if($s === 'pending') bg-yellow-100 text-yellow-700
+                            @elseif($s === 'processing') bg-blue-100 text-blue-700
+                            @elseif($s === 'completed') bg-green-100 text-green-700
+                            @else bg-red-100 text-red-700
+                            @endif">
+                            {{ ucfirst($s) }}
+                        </span>
                     </td>
                     <td class="px-6 py-4 text-gray-600">{{ $order->created_at->format('d M Y, H:i') }}</td>
                     <td class="px-6 py-4 text-center">

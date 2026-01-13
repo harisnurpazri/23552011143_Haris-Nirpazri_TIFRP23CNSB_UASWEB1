@@ -33,6 +33,10 @@ class AppServiceProvider extends ServiceProvider
                 // optional HTTPS enforcement middleware (enabled via FORCE_HTTPS env)
                 $router->aliasMiddleware('force.https', \App\Http\Middleware\ForceHttps::class);
                 $router->pushMiddlewareToGroup('web', \App\Http\Middleware\ForceHttps::class);
+
+                // Ensure XSRF cookie flags (Secure + SameSite) in production
+                $router->aliasMiddleware('xsrf.flags', \App\Http\Middleware\EnsureXsrfCookieFlags::class);
+                $router->pushMiddlewareToGroup('web', \App\Http\Middleware\EnsureXsrfCookieFlags::class);
             }
         } catch (\Throwable $e) {
             // Best-effort: if router is not available at boot time, skip.

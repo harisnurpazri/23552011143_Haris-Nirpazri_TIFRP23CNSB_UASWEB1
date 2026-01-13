@@ -165,7 +165,25 @@ class OrderController extends Controller
         ]);
 
         $order = Order::findOrFail($id);
+        $old = $order->status;
         $order->update(['status' => $request->status]);
+        // Log the change for debugging purposes
+        \Log::info('Order status update', [
+            'order_id' => $order->id,
+            'old' => $old,
+            'new' => $order->status,
+            'requested' => $request->status,
+            'user_id' => $request->user()?->id,
+        ]);
+
+        // If AJAX, return JSON for client-side handling
+        if ($request->ajax() || $request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
+            return response()->json([
+                'success' => true,
+                'status' => $order->status,
+                'message' => 'Status updated'
+            ]);
+        }
 
         return back()->with('success', 'Status pesanan berhasil diperbarui!');
     }

@@ -29,8 +29,10 @@ Alpine.start();
 		async function handleAddToCartSubmit(e) {
 			e.preventDefault();
 			e.stopPropagation();
+			console.debug('[cart] submit handler invoked');
 			const form = e.currentTarget;
 			const action = form.getAttribute('action');
+			console.debug('[cart] action', action);
 			const formData = new FormData(form);
 			// preserve scroll position so UI doesn't jump
 			const scrollY = window.scrollY || window.pageYOffset;
@@ -55,21 +57,66 @@ Alpine.start();
 					credentials: 'same-origin'
 				});
 
+				// If response isn't OK, try to parse JSON error message but continue to fallback count fetch
 				if (!resp.ok) {
-					// try to parse JSON message
 					let json = null;
-					try { json = await resp.json(); } catch (err) { /* ignore */ }
+					try { json = await resp.json(); } catch (err) { /* ignore parse error */ }
 					const msg = (json && json.message) ? json.message : 'Terjadi kesalahan.';
 					createToast(msg, 'error');
-					return;
+					console.warn('[cart] add response not ok', resp.status, resp.statusText);
+					// attempt to refresh badge regardless (server-side may have updated session)
 				}
 
-				const data = await resp.json();
+				// Try to parse JSON body if any (don't throw on parse error)
+				let data = {};
+				try { data = await resp.json() || {}; } catch (err) { data = {}; }
 
-				// update cart count if returned
+				// Helper: ensure badge exists (create if missing)
+				function ensureBadge() {
+					let b = document.querySelector('[data-cart-count]');
+					if (b) return b;
+					// try to find cart link in navigation
+					const cartLink = document.querySelector('a[href*="/cart"]');
+					if (!cartLink) return null;
+					b = document.createElement('span');
+					b.setAttribute('data-cart-count', '0');
+					b.className = 'absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center hidden';
+					b.textContent = '0';
+					// ensure parent is positioned so absolute works
+					if (getComputedStyle(cartLink).position === 'static') cartLink.style.position = 'relative';
+					cartLink.appendChild(b);
+					return b;
+				}
+
+				// If server provided cartCount in response, use it immediately
 				if (data.cartCount !== undefined) {
-					const badge = document.querySelector('[data-cart-count]');
-					if (badge) badge.textContent = data.cartCount;
+					const badge = ensureBadge();
+					if (badge) {
+						badge.textContent = data.cartCount;
+						if (Number(data.cartCount) > 0) badge.classList.remove('hidden'); else badge.classList.add('hidden');
+					}
+					console.debug('[cart] used cartCount from add response', data.cartCount);
+				}
+
+				// Always fetch authoritative cart count from server as a reliable fallback
+				try {
+					const countUrlMeta = document.querySelector('meta[name="cart-count-url"]');
+					const countUrl = countUrlMeta ? countUrlMeta.getAttribute('content') : '/cart/count';
+					console.debug('[cart] fetching fallback count from', countUrl);
+					const r = await fetch(countUrl, { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' });
+					if (r.ok) {
+						const cd = await r.json();
+						const badge = ensureBadge();
+						if (badge && cd.cartCount !== undefined) {
+							badge.textContent = cd.cartCount;
+							if (Number(cd.cartCount) > 0) badge.classList.remove('hidden'); else badge.classList.add('hidden');
+							console.debug('[cart] fallback count', cd.cartCount);
+						}
+					} else {
+						console.warn('[cart] Failed to fetch cart count fallback', r.status, r.statusText);
+					}
+				} catch (err) {
+					console.warn('[cart] Error fetching cart count fallback', err);
 				}
 
 				// show toast success
@@ -165,10 +212,44 @@ Alpine.start();
 		updateHref();
 	}
 
+	function initRealtimeClocks() {
+		const days = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+		const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+		function two(n) { return String(n).padStart(2, '0'); }
+
+		function formatDateTime(d) {
+			const dayName = days[d.getDay()];
+			const date = d.getDate();
+			const monthName = months[d.getMonth()];
+			const year = d.getFullYear();
+			const h = two(d.getHours());
+			const m = two(d.getMinutes());
+			const s = two(d.getSeconds());
+			return `${dayName}, ${date} ${monthName} ${year} ${h}:${m}:${s}`;
+		}
+
+		const els = Array.from(document.querySelectorAll('[data-realtime-clock]'));
+		if (els.length === 0) return;
+
+		function tick() {
+			const now = new Date();
+			const text = formatDateTime(now);
+			els.forEach(el => {
+				el.textContent = text;
+			});
+		}
+
+		// initial render and interval
+		tick();
+		setInterval(tick, 1000);
+	}
+
 	function initAll() {
 		initAjaxAddToCart();
 		initPreserveScroll();
 		initExportSync();
+		initRealtimeClocks();
 	}
 
 	if (document.readyState === 'loading') {

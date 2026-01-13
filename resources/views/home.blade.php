@@ -1,52 +1,48 @@
-<x-app-layout>
-    <!-- Hero Section -->
-    <div class="bg-gradient-to-br from-amber-900 via-amber-800 to-yellow-700 text-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
-            <div class="text-center">
-                <h1 class="text-4xl lg:text-5xl font-bold mb-4">
-                    Furniture Berkualitas untuk Rumah Impian Anda
-                </h1>
-                <p class="text-lg lg:text-xl text-amber-100 mb-8 max-w-3xl mx-auto">
-                    Desain elegan, kayu pilihan terbaik, dan craftsmanship yang sempurna
-                </p>
-                <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="#products" class="inline-flex items-center px-6 py-3 bg-white text-amber-900 font-bold rounded-lg hover:bg-amber-100 transition">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
-                        </svg>
-                        Belanja Sekarang
-                    </a>
-                    <a href="{{ route('edukasi.index') }}" class="inline-flex items-center px-6 py-3 border-2 border-white text-white font-bold rounded-lg hover:bg-white/10 transition">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                        </svg>
-                        Pelajari Lebih Lanjut
-                    </a>
+    <!-- Hero Section (redesigned) -->
+    <div class="bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                <div class="lg:col-span-7 text-center lg:text-left">
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight mb-6">Furniture Berkualitas untuk Rumah Impian Anda</h1>
+                    <p class="text-lg text-slate-300 max-w-2xl mb-8">Desain elegan, kayu pilihan terbaik, dan craftsmanship yang sempurna untuk setiap sudut rumah Anda.</p>
+                    <div class="flex flex-col sm:flex-row gap-4 sm:justify-start justify-center">
+                        <a href="#products" class="inline-flex items-center px-6 py-3 bg-amber-500 text-white font-semibold rounded-lg shadow-md hover:brightness-110 transition">
+                            Belanja Sekarang
+                        </a>
+                        <a href="{{ route('edukasi.index') }}" class="inline-flex items-center px-6 py-3 border border-slate-700 text-slate-200 font-semibold rounded-lg hover:bg-white/5 transition">
+                            Pelajari Lebih Lanjut
+                        </a>
+                    </div>
+                    <!-- Search (redesigned) -->
+                    <div class="mt-8">
+                        <form action="{{ route('home') }}" method="GET" class="flex items-center gap-3 bg-white text-slate-900 rounded-2xl shadow-lg p-2 sm:p-3 preserve-scroll">
+                            <input type="text" name="search" value="{{ $search ?? '' }}" placeholder="Cari produk furniture..." class="flex-1 px-4 py-3 rounded-lg border-0 text-sm sm:text-base outline-none" />
+                            <select name="kategori" class="px-4 py-2 rounded-md border-0 text-sm">
+                                <option value="">Semua Kategori</option>
+                                @foreach($categories as $cat)
+                                    <option value="{{ $cat }}" {{ ($selectedKategori ?? '') == $cat ? 'selected' : '' }}>
+                                        {{ $cat }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <button type="submit" class="px-5 py-2 bg-amber-600 text-white rounded-lg font-semibold">Cari</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-5 hidden lg:block">
+                    <div class="relative">
+                        <div class="h-96 rounded-3xl bg-gradient-to-br from-amber-800 via-amber-700 to-amber-600 shadow-2xl flex items-center justify-center">
+                            <!-- Decorative product hero; keep functional integrity, no external images referenced -->
+                            <div class="w-72 h-44 bg-white/10 rounded-2xl backdrop-blur-lg border border-white/5 flex items-center justify-center">
+                                <svg class="w-24 h-24 text-white/90" fill="none" viewBox="0 0 64 64" stroke="currentColor"><rect x="8" y="12" width="48" height="36" rx="4" stroke-width="2"/></svg>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-            <!-- Search -->
-            <div class="mt-12 max-w-2xl mx-auto">
-                <form action="{{ route('home') }}" method="GET" class="flex flex-col sm:flex-row gap-3 bg-white/10 backdrop-blur p-4 rounded-xl preserve-scroll">
-                    <input 
-                        type="text" 
-                        name="search" 
-                        value="{{ $search ?? '' }}"
-                        placeholder="Cari produk furniture..." 
-                        class="flex-1 px-4 py-3 rounded-lg border-0 text-gray-900 placeholder-gray-500"
-                    >
-                    <select name="kategori" class="px-4 py-3 rounded-lg border-0 text-gray-900">
-                        <option value="">Semua Kategori</option>
-                        @foreach($categories as $cat)
-                            <option value="{{ $cat }}" {{ ($selectedKategori ?? '') == $cat ? 'selected' : '' }}>
-                                {{ $cat }}
-                            </option>
-                        @endforeach
-                    </select>
-                    <button type="submit" class="px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg transition">
-                        Cari
-                    </button>
-                </form>
+        </div>
+    </div>
             </div>
         </div>
     </div>
@@ -117,90 +113,7 @@
             @else
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     @foreach($products as $product)
-                    <div class="bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all group overflow-hidden">
-                        <!-- Product Image -->
-                        <div class="relative h-56 bg-gray-100 overflow-hidden">
-                            @if($product->gambar && file_exists(public_path('assets/img/' . $product->gambar)))
-                                <img src="{{ asset('assets/img/' . $product->gambar) }}" 
-                                     alt="{{ $product->nama_produk }}"
-                                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
-                            @else
-                                <div class="w-full h-full flex items-center justify-center text-gray-400">
-                                    <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                    </svg>
-                                </div>
-                            @endif
-                            
-                            <!-- Category Badge -->
-                            <span class="absolute top-3 right-3 px-3 py-1 bg-white/90 text-amber-800 text-xs font-semibold rounded-full">
-                                {{ $product->kategori }}
-                            </span>
-
-                            @if($product->isNew())
-                                <span class="absolute top-3 left-3 px-3 py-1 bg-green-500 text-white text-xs font-semibold rounded-full">
-                                    New
-                                </span>
-                            @endif
-                        </div>
-
-                        <!-- Product Info -->
-                        <div class="p-5">
-                            <h3 class="font-bold text-gray-900 mb-2 line-clamp-1">{{ $product->nama_produk }}</h3>
-                            <p class="text-gray-500 text-sm mb-3 line-clamp-2">{{ $product->deskripsi }}</p>
-                            
-                            <!-- Stock Status -->
-                            @if($product->stok > 10)
-                                <span class="inline-flex items-center text-green-600 text-xs mb-3">
-                                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                                    </svg>
-                                    Stok Tersedia
-                                </span>
-                            @elseif($product->stok > 0)
-                                <span class="inline-flex items-center text-yellow-600 text-xs mb-3">
-                                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                                    </svg>
-                                    Sisa {{ $product->stok }} unit
-                                </span>
-                            @else
-                                <span class="inline-flex items-center text-red-600 text-xs mb-3">
-                                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
-                                    </svg>
-                                    Stok Habis
-                                </span>
-                            @endif
-
-                            <!-- Price -->
-                            <div class="flex items-center justify-between">
-                                <span class="text-xl font-bold text-amber-700">{{ $product->formatted_harga }}</span>
-                            </div>
-
-                            <!-- Actions -->
-                            <div class="flex gap-2 mt-4">
-                                <a href="{{ route('produk.show', $product->id) }}" 
-                                   class="flex-1 py-2 px-4 text-center border border-amber-600 text-amber-600 font-semibold rounded-lg hover:bg-amber-50 transition">
-                                    Detail
-                                </a>
-                                @auth
-                                    @if($product->stok > 0)
-                                    <form action="{{ route('cart.add', $product->id) }}" method="POST" class="flex-1 ajax-add-to-cart">
-                                        @csrf
-                                        <button type="submit" class="w-full py-2 px-4 bg-amber-600 text-white font-semibold rounded-lg hover:bg-amber-700 transition">
-                                            + Keranjang
-                                        </button>
-                                    </form>
-                                    @endif
-                                @else
-                                    <a href="{{ route('login') }}" class="flex-1 py-2 px-4 text-center bg-amber-600 text-white font-semibold rounded-lg hover:bg-amber-700 transition">
-                                        + Keranjang
-                                    </a>
-                                @endauth
-                            </div>
-                        </div>
-                    </div>
+                        <x-product-card :product="$product" />
                     @endforeach
                 </div>
             @endif
