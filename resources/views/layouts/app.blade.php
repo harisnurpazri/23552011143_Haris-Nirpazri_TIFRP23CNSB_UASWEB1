@@ -17,6 +17,7 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <style>[x-cloak]{display:none!important;}</style>
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100">
@@ -61,7 +62,7 @@
         <!-- Chat Widget -->
         @auth
         @if(auth()->user()->role === 'user')
-        <div x-data="chatWidget" x-init="initChat()" class="fixed bottom-6 right-6 z-50">
+        <div x-data="chatWidget" x-init="initChat()" class="fixed bottom-6 right-6 z-60">
             <!-- Chat Button -->
             <button @click="toggleChat()" 
                     class="bg-amber-600 hover:bg-amber-700 text-white rounded-full p-4 shadow-lg transition transform hover:scale-105 flex items-center justify-center">
