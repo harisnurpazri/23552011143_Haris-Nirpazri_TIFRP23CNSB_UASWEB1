@@ -38,7 +38,7 @@
                         <div class="p-6">
                             <h3 class="text-xl font-bold text-gray-900 mb-2">{{ $edu->judul }}</h3>
                             <p class="text-gray-600 line-clamp-3 mb-4">{{ $edu->konten }}</p>
-                            <button onclick="openModal('modal-{{ $edu->id }}')" class="inline-flex items-center text-amber-600 font-semibold hover:text-amber-700">
+                            <button data-open-modal="modal-{{ $edu->id }}" class="inline-flex items-center text-amber-600 font-semibold hover:text-amber-700">
                                 Baca Selengkapnya
                                 <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -52,7 +52,7 @@
                         <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
                             <div class="bg-gradient-to-r from-amber-700 to-amber-600 text-white p-6 flex justify-between items-center">
                                 <h3 class="text-xl font-bold">{{ $edu->judul }}</h3>
-                                <button onclick="closeModal('modal-{{ $edu->id }}')" class="text-white/80 hover:text-white">
+                                <button data-close-modal="modal-{{ $edu->id }}" class="text-white/80 hover:text-white">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                     </svg>
@@ -83,7 +83,7 @@
         </div>
     </div>
 
-    <script>
+    <script nonce="{{ $cspNonce ?? '' }}">
         function openModal(id) {
             document.getElementById(id).classList.remove('hidden');
             document.getElementById(id).classList.add('flex');

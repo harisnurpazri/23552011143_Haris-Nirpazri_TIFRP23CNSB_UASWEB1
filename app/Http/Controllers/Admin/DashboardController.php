@@ -16,6 +16,11 @@ class DashboardController extends Controller
      */
     public function index()
     {
+        $period = request()->input('period', 7);
+        $period = (int) $period;
+        if ($period <= 0) $period = 7;
+        // limit to prevent excessive queries
+        $period = min($period, 90);
         // Stats
         $produkCount = Produk::count();
         $userCount = User::where('role', 'user')->count();
@@ -26,12 +31,25 @@ class DashboardController extends Controller
         // Total revenue
         $totalRevenue = Order::where('status', '!=', 'cancelled')->sum('total');
 
-        // Chart data (last 7 days)
-        $chartData = Order::selectRaw('DATE(created_at) as dt, COUNT(*) as cnt, SUM(total) as revenue')
-            ->where('created_at', '>=', now()->subDays(7))
+        // Chart data (last N days) - ensure every day appears (fill 0 when no orders)
+        $startDate = now()->subDays($period - 1)->startOfDay();
+        $raw = Order::selectRaw('DATE(created_at) as dt, COUNT(*) as cnt, SUM(total) as revenue')
+            ->where('created_at', '>=', $startDate)
             ->groupBy('dt')
             ->orderBy('dt')
-            ->get();
+            ->get()
+            ->keyBy('dt');
+
+        $chartData = collect();
+        for ($i = $period - 1; $i >= 0; $i--) {
+            $date = now()->subDays($i)->format('Y-m-d');
+            $entry = $raw->get($date);
+            $chartData->push((object)[
+                'dt' => $date,
+                'cnt' => $entry ? (int)$entry->cnt : 0,
+                'revenue' => $entry ? (float)$entry->revenue : 0,
+            ]);
+        }
 
         // Recent orders
         $recentOrders = Order::with('user')
@@ -49,5 +67,37 @@ class DashboardController extends Controller
             'chartData' => $chartData,
             'recentOrders' => $recentOrders,
         ]);
+    }
+
+    /**
+     * Return chart data as JSON for AJAX requests
+     */
+    public function chartData(Request $request)
+    {
+        $period = $request->input('period', 7);
+        $period = (int) $period;
+        if ($period <= 0) $period = 7;
+        $period = min($period, 90);
+
+        $startDate = now()->subDays($period - 1)->startOfDay();
+        $raw = Order::selectRaw('DATE(created_at) as dt, COUNT(*) as cnt, SUM(total) as revenue')
+            ->where('created_at', '>=', $startDate)
+            ->groupBy('dt')
+            ->orderBy('dt')
+            ->get()
+            ->keyBy('dt');
+
+        $chartData = collect();
+        for ($i = $period - 1; $i >= 0; $i--) {
+            $date = now()->subDays($i)->format('Y-m-d');
+            $entry = $raw->get($date);
+            $chartData->push([
+                'dt' => $date,
+                'cnt' => $entry ? (int)$entry->cnt : 0,
+                'revenue' => $entry ? (float)$entry->revenue : 0,
+            ]);
+        }
+
+        return response()->json($chartData);
     }
 }

@@ -67,6 +67,13 @@ class LoginRequest extends FormRequest
 
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
+        // Flash remaining seconds to session so the login view can show a countdown
+        try {
+            $this->session()->flash('login_lockout_seconds', $seconds);
+        } catch (\Throwable $e) {
+            // ignore if session not available
+        }
+
         throw ValidationException::withMessages([
             'email' => trans('auth.throttle', [
                 'seconds' => $seconds,

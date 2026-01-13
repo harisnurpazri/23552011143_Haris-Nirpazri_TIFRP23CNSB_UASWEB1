@@ -2,6 +2,12 @@
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
+    @if(session('login_lockout_seconds'))
+        <div id="login-lockout" class="mb-4 rounded-md bg-red-50 border border-red-200 p-3 text-sm text-red-800">
+            Terlalu banyak percobaan login. Coba lagi dalam <span id="lockout-seconds">{{ session('login_lockout_seconds') }}</span> detik.
+        </div>
+    @endif
+
     <form method="POST" action="{{ route('login') }}">
         @csrf
 
@@ -44,4 +50,38 @@
             </x-primary-button>
         </div>
     </form>
+
+    @if(session('login_lockout_seconds'))
+    <script nonce="{{ $cspNonce ?? '' }}">
+        (function(){
+            var seconds = parseInt(@json(session('login_lockout_seconds')) || 0, 10);
+            var display = document.getElementById('lockout-seconds');
+            var submitBtn = document.querySelector('form button[type="submit"], form x-primary-button');
+
+            if (!display) return;
+
+            function disableLogin() {
+                if (submitBtn) submitBtn.setAttribute('disabled', 'disabled');
+            }
+            function enableLogin() {
+                if (submitBtn) submitBtn.removeAttribute('disabled');
+            }
+
+            disableLogin();
+
+            var interval = setInterval(function(){
+                seconds = seconds - 1;
+                if (seconds <= 0) {
+                    clearInterval(interval);
+                    display.textContent = '0';
+                    enableLogin();
+                    // Optionally remove the lockout box
+                    var box = document.getElementById('login-lockout'); if (box) box.style.display = 'none';
+                    return;
+                }
+                display.textContent = seconds;
+            }, 1000);
+        })();
+    </script>
+    @endif
 </x-guest-layout>

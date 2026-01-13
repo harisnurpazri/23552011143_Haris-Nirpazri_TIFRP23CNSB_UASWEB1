@@ -6,7 +6,7 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('home') }}" class="flex items-center gap-2">
-                        <x-application-logo class="block h-9 w-auto fill-current text-amber-600" />
+                        <x-application-logo class="block h-8 sm:h-9 w-auto" />
                         <span class="font-bold text-xl text-gray-900 hidden sm:block">Meubeul Dua Putra</span>
                     </a>
                 </div>
@@ -35,9 +35,9 @@
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
                         </svg>
-                        @if(session('cart') && count(session('cart')) > 0)
-                            <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
-                                {{ count(session('cart')) }}
+                        @if(session('cart') && array_sum(session('cart', [])) > 0)
+                            <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center" data-cart-count>
+                                {{ array_sum(session('cart', [])) }}
                             </span>
                         @endif
                     </a>
@@ -71,9 +71,7 @@
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
 
-                                <x-dropdown-link :href="route('logout')"
-                                        onclick="event.preventDefault();
-                                                    this.closest('form').submit();">
+                                <x-dropdown-link :href="route('logout')" data-submit-form="true">
                                     {{ __('Log Out') }}
                                 </x-dropdown-link>
                             </form>
@@ -94,9 +92,9 @@
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
                     </svg>
-                    @if(session('cart') && count(session('cart')) > 0)
-                        <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
-                            {{ count(session('cart')) }}
+                    @if(session('cart') && array_sum(session('cart', [])) > 0)
+                        <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center" data-cart-count>
+                            {{ array_sum(session('cart', [])) }}
                         </span>
                     @endif
                 </a>
@@ -114,6 +112,13 @@
 
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
+        <!-- Mobile header with logo -->
+        <div class="px-4 py-3 border-b border-gray-200 flex items-center">
+            <a href="{{ route('home') }}" class="flex items-center gap-2">
+                <x-application-logo class="h-8 w-auto" />
+                <span class="font-bold text-lg text-gray-900 ms-2">Meubeul Dua Putra</span>
+            </a>
+        </div>
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('home')" :active="request()->routeIs('home')">
                 {{ __('Home') }}
@@ -151,9 +156,7 @@
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
 
-                        <x-responsive-nav-link :href="route('logout')"
-                                onclick="event.preventDefault();
-                                            this.closest('form').submit();">
+                        <x-responsive-nav-link :href="route('logout')" data-submit-form="true">
                             {{ __('Log Out') }}
                         </x-responsive-nav-link>
                     </form>

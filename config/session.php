@@ -169,7 +169,6 @@ return [
     |
     */
 
-    'secure' => env('SESSION_SECURE_COOKIE'),
 
     /*
     |--------------------------------------------------------------------------
@@ -199,6 +198,8 @@ return [
     |
     */
 
+    'secure' => env('SESSION_SECURE_COOKIE', false),
+    // Use 'lax' by default to preserve common cross-site flows in development.
     'same_site' => env('SESSION_SAME_SITE', 'lax'),
 
     /*

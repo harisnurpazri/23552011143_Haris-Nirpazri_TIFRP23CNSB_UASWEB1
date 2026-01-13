@@ -9,6 +9,27 @@ use Illuminate\Http\Request;
 class CartController extends Controller
 {
     /**
+     * Helper to check admin and return proper response
+     */
+    protected function denyIfAdmin(Request $request)
+    {
+        $user = $request->user();
+        if ($user && method_exists($user, 'isAdmin') && $user->isAdmin()) {
+            if ($request->expectsJson() || $request->wantsJson()) {
+                return response()->json(['message' => 'Admin tidak diizinkan melakukan pembelian.'], 403);
+            }
+
+            if (app('router')->has('admin.dashboard')) {
+                return redirect()->route('admin.dashboard')->with('error', 'Admin tidak dapat melakukan pembelian.');
+            }
+
+            return redirect('/')->with('error', 'Admin tidak dapat melakukan pembelian.');
+        }
+
+        return null;
+    }
+
+    /**
      * Display cart page
      */
     public function index(Request $request)
@@ -43,6 +64,10 @@ class CartController extends Controller
      */
     public function add(Request $request, $id)
     {
+        if ($resp = $this->denyIfAdmin($request)) {
+            return $resp;
+        }
+
         $product = Produk::findOrFail($id);
         
         if (!$product->isInStock()) {
@@ -75,6 +100,10 @@ class CartController extends Controller
      */
     public function update(Request $request, $id)
     {
+        if ($resp = $this->denyIfAdmin($request)) {
+            return $resp;
+        }
+
         $request->validate([
             'qty' => 'required|integer|min:1',
         ]);
@@ -94,6 +123,12 @@ class CartController extends Controller
      */
     public function remove($id)
     {
+        // create a fake request to check user role via auth helper
+        $request = request();
+        if ($resp = $this->denyIfAdmin($request)) {
+            return $resp;
+        }
+
         $cart = session('cart', []);
         
         if (isset($cart[$id])) {
@@ -109,6 +144,11 @@ class CartController extends Controller
      */
     public function checkout()
     {
+        $request = request();
+        if ($resp = $this->denyIfAdmin($request)) {
+            return $resp;
+        }
+
         $cart = session('cart', []);
         
         if (empty($cart)) {
@@ -142,6 +182,10 @@ class CartController extends Controller
      */
     public function processCheckout(Request $request)
     {
+        if ($resp = $this->denyIfAdmin($request)) {
+            return $resp;
+        }
+
         $cart = session('cart', []);
         
         if (empty($cart)) {
@@ -186,6 +230,11 @@ class CartController extends Controller
      */
     public function invoice($id)
     {
+        $request = request();
+        if ($resp = $this->denyIfAdmin($request)) {
+            return $resp;
+        }
+
         $order = Order::where('user_id', auth()->id())->findOrFail($id);
         
         return view('cart.invoice', [

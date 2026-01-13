@@ -37,16 +37,18 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     
-    // Cart
-    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-    Route::post('/cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
-    Route::patch('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
-    Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
-    
-    // Checkout & Invoice
-    Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
-    Route::post('/checkout', [CartController::class, 'processCheckout'])->name('checkout.process');
-    Route::get('/invoice/{id}', [CartController::class, 'invoice'])->name('invoice.show');
+    // Cart & Checkout (non-admin only)
+    Route::middleware('not-admin')->group(function () {
+        Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+        Route::post('/cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
+        Route::patch('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
+        Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+
+        // Checkout & Invoice
+        Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
+        Route::post('/checkout', [CartController::class, 'processCheckout'])->name('checkout.process');
+        Route::get('/invoice/{id}', [CartController::class, 'invoice'])->name('invoice.show');
+    });
 });
 
 /*
@@ -58,12 +60,15 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
+    // JSON endpoint for dashboard chart data
+    Route::get('/dashboard/data', [AdminDashboardController::class, 'chartData'])->name('dashboard.data');
     
     // Produk CRUD
     Route::resource('produk', AdminProdukController::class);
     
     // Orders
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/export', [AdminOrderController::class, 'export'])->name('orders.export')->middleware('throttle:export');
     Route::get('/orders/{id}', [AdminOrderController::class, 'show'])->name('orders.show');
     Route::patch('/orders/{id}', [AdminOrderController::class, 'update'])->name('orders.update');
 
@@ -76,13 +81,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Admin Chat
     Route::get('/chat', [\App\Http\Controllers\Admin\ChatController::class, 'index'])->name('chat.index');
     Route::get('/chat/{user}', [\App\Http\Controllers\Admin\ChatController::class, 'show'])->name('chat.show');
-    Route::post('/chat/{user}/send', [\App\Http\Controllers\Admin\ChatController::class, 'reply'])->name('chat.reply');
+    Route::post('/chat/{user}/send', [\App\Http\Controllers\Admin\ChatController::class, 'reply'])->name('chat.reply')->middleware('throttle:chat');
 });
 
 Route::middleware('auth')->group(function () {
     // User Chat Routes
     Route::get('/chat/get-messages', [\App\Http\Controllers\ChatController::class, 'getMessages'])->name('chat.getMessages');
-    Route::post('/chat/send', [\App\Http\Controllers\ChatController::class, 'sendMessage'])->name('chat.sendMessage');
+    Route::post('/chat/send', [\App\Http\Controllers\ChatController::class, 'sendMessage'])->name('chat.sendMessage')->middleware('throttle:chat');
 });
 
 require __DIR__.'/auth.php';

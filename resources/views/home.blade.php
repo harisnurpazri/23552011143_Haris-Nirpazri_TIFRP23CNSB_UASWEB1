@@ -27,7 +27,7 @@
 
             <!-- Search -->
             <div class="mt-12 max-w-2xl mx-auto">
-                <form action="{{ route('home') }}" method="GET" class="flex flex-col sm:flex-row gap-3 bg-white/10 backdrop-blur p-4 rounded-xl">
+                <form action="{{ route('home') }}" method="GET" class="flex flex-col sm:flex-row gap-3 bg-white/10 backdrop-blur p-4 rounded-xl preserve-scroll">
                     <input 
                         type="text" 
                         name="search" 
@@ -186,7 +186,7 @@
                                 </a>
                                 @auth
                                     @if($product->stok > 0)
-                                    <form action="{{ route('cart.add', $product->id) }}" method="POST" class="flex-1">
+                                    <form action="{{ route('cart.add', $product->id) }}" method="POST" class="flex-1 ajax-add-to-cart">
                                         @csrf
                                         <button type="submit" class="w-full py-2 px-4 bg-amber-600 text-white font-semibold rounded-lg hover:bg-amber-700 transition">
                                             + Keranjang
@@ -252,38 +252,4 @@
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-gray-300 py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid md:grid-cols-3 gap-8">
-                <div>
-                    <h3 class="text-xl font-bold text-white mb-4">Meubeul Dua Putra</h3>
-                    <p class="text-gray-400">Furniture berkualitas tinggi dengan kayu pilihan untuk hunian Anda.</p>
-                </div>
-                <div>
-                    <h4 class="font-semibold text-white mb-4">Menu</h4>
-                    <ul class="space-y-2">
-                        <li><a href="{{ route('home') }}" class="hover:text-white transition">Home</a></li>
-                        <li><a href="{{ route('edukasi.index') }}" class="hover:text-white transition">Edukasi</a></li>
-                        @auth
-                            <li><a href="{{ route('dashboard') }}" class="hover:text-white transition">Dashboard</a></li>
-                        @else
-                            <li><a href="{{ route('login') }}" class="hover:text-white transition">Login</a></li>
-                        @endauth
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="font-semibold text-white mb-4">Kontak</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li>📍 Pangandaran, Jawa Barat</li>
-                        <li>📞 +62 812-3456-7890</li>
-                        <li>✉️ info@meubeulduaputra.com</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-500">
-                <p>&copy; {{ date('Y') }} Meubeul Dua Putra. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
-</x-app-layout>
+    @</x-app-layout>

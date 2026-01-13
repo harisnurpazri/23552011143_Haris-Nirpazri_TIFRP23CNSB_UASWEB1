@@ -5,7 +5,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>{{ config('app.name', 'Meubel Dua Putra') }}</title>
+
+        <!-- Favicon / App icons (use project logo) -->
+        <link rel="icon" href="{{ asset('assets/img/logo.png') }}" type="image/png">
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('assets/img/logo.png') }}">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -17,6 +21,24 @@
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100">
             @include('layouts.navigation')
+
+            <!-- Flash Messages -->
+            @if(session('success') || session('error') || session('warning') || session('info'))
+                <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+                    @if(session('success'))
+                        <div class="bg-green-50 border border-green-200 text-green-800 px-4 py-2 rounded">{{ session('success') }}</div>
+                    @endif
+                    @if(session('error'))
+                        <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-2 rounded">{{ session('error') }}</div>
+                    @endif
+                    @if(session('warning'))
+                        <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-2 rounded">{{ session('warning') }}</div>
+                    @endif
+                    @if(session('info'))
+                        <div class="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-2 rounded">{{ session('info') }}</div>
+                    @endif
+                </div>
+            @endif
 
             <!-- Page Heading -->
             @isset($header)
@@ -31,6 +53,9 @@
             <main>
                 {{ $slot }}
             </main>
+            
+            <!-- Shared Footer -->
+            @include('components.footer')
         </div>
 
         <!-- Chat Widget -->
@@ -45,7 +70,7 @@
                 </svg>
             </button>
 
-            <!-- Chat Window -->
+                <!-- Chat Window -->
             <div x-show="isOpen" 
                  x-transition:enter="transition ease-out duration-300"
                  x-transition:enter-start="opacity-0 translate-y-4 scale-95"
@@ -53,8 +78,7 @@
                  x-transition:leave="transition ease-in duration-200"
                  x-transition:leave-start="opacity-100 translate-y-0 scale-100"
                  x-transition:leave-end="opacity-0 translate-y-4 scale-95"
-                 class="absolute bottom-20 right-0 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100"
-                 style="display: none;">
+                 class="absolute bottom-20 right-0 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100 hidden">
                 
                 <!-- Header -->
                 <div class="bg-amber-600 p-4 flex justify-between items-center text-white">
@@ -93,7 +117,7 @@
             </div>
         </div>
 
-        <script>
+        <script nonce="{{ $cspNonce ?? '' }}">
             document.addEventListener('alpine:init', () => {
                 Alpine.data('chatWidget', () => ({
                     isOpen: false,
@@ -184,5 +208,91 @@
         </script>
         @endif
         @endauth
+            <script nonce="{{ $cspNonce ?? '' }}">
+                (function(){
+                    // Delegated handlers for data- attributes to avoid inline event handlers (CSP-safe)
+
+                    // Helper to find closest element with attribute
+                    function closestWithAttr(el, attr) {
+                        while(el && el !== document) {
+                            if (el.hasAttribute && el.hasAttribute(attr)) return el;
+                            el = el.parentNode;
+                        }
+                        return null;
+                    }
+
+                    // Click delegation
+                    document.addEventListener('click', function(e){
+                        var target = e.target;
+                        var submitEl = closestWithAttr(target, 'data-submit-form');
+                        if (submitEl) {
+                            e.preventDefault();
+                            var form = submitEl.closest('form');
+                            if (form) form.submit();
+                            return;
+                        }
+
+                        var openModalEl = closestWithAttr(target, 'data-open-modal');
+                        if (openModalEl) {
+                            e.preventDefault();
+                            var id = openModalEl.getAttribute('data-open-modal');
+                            var node = document.getElementById(id);
+                            if (node) {
+                                node.classList.remove('hidden'); node.classList.add('flex'); document.body.style.overflow='hidden';
+                            }
+                            return;
+                        }
+
+                        var closeModalEl = closestWithAttr(target, 'data-close-modal');
+                        if (closeModalEl) {
+                            e.preventDefault();
+                            var id = closeModalEl.getAttribute('data-close-modal');
+                            var node = document.getElementById(id);
+                            if (node) {
+                                node.classList.add('hidden'); node.classList.remove('flex'); document.body.style.overflow='auto';
+                            }
+                            return;
+                        }
+
+                        var actionEl = closestWithAttr(target, 'data-action');
+                        if (actionEl) {
+                            var action = actionEl.getAttribute('data-action');
+                            if (action === 'print') { e.preventDefault(); window.print(); }
+                            return;
+                        }
+
+                        var qtyEl = closestWithAttr(target, 'data-qty-action');
+                        if (qtyEl) {
+                            e.preventDefault();
+                            var form = qtyEl.closest('form');
+                            if (!form) return;
+                            var input = form.querySelector('input[name="qty"]');
+                            if (!input) return;
+                            var delta = qtyEl.getAttribute('data-qty-action') === 'decrement' ? -1 : 1;
+                            var val = parseInt(input.value || '0', 10) + delta;
+                            if (isNaN(val) || val < 1) val = 1;
+                            input.value = val;
+                        }
+                    }, false);
+
+                    // Form submit interception for data-confirm
+                    document.addEventListener('submit', function(e){
+                        var form = e.target;
+                        if (form && form.hasAttribute && form.hasAttribute('data-confirm')) {
+                            var msg = form.getAttribute('data-confirm') || 'Are you sure?';
+                            if (!confirm(msg)) {
+                                e.preventDefault();
+                            }
+                        }
+                    }, true);
+
+                    // Auto-submit selects
+                    document.querySelectorAll('select[data-auto-submit]').forEach(function(sel){
+                        sel.addEventListener('change', function(){
+                            var form = sel.closest('form'); if (form) form.submit();
+                        });
+                    });
+                })();
+            </script>
     </body>
 </html>

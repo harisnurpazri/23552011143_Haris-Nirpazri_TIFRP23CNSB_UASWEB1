@@ -43,7 +43,7 @@
                                 </svg>
                             </a>
                             @if(auth()->id() !== $user->id)
-                            <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('Hapus user ini? Aksi ini tidak dapat dibatalkan.')">
+                            <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" data-confirm="Hapus user ini? Aksi ini tidak dapat dibatalkan.">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="p-2 text-red-600 hover:bg-red-50 rounded-lg">

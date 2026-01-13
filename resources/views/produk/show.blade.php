@@ -84,7 +84,7 @@
                     <div class="space-y-3">
                         @auth
                             @if($produk->stok > 0)
-                            <form action="{{ route('cart.add', $produk->id) }}" method="POST">
+                            <form action="{{ route('cart.add', $produk->id) }}" method="POST" class="ajax-add-to-cart">
                                 @csrf
                                 <button type="submit" class="w-full py-4 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl transition flex items-center justify-center">
                                     <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

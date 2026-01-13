@@ -50,7 +50,7 @@
         </div>
     </div>
 
-    <script>
+    <script nonce="{{ $cspNonce ?? '' }}">
         // Auto scroll to bottom
         const container = document.getElementById('messages-container');
         container.scrollTop = container.scrollHeight;
