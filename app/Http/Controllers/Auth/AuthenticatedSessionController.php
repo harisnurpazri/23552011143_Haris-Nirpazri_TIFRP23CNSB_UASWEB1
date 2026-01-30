@@ -50,7 +50,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        if (!empty($cart)) {
+        if (! empty($cart)) {
             $request->session()->put('cart', $cart);
         }
 

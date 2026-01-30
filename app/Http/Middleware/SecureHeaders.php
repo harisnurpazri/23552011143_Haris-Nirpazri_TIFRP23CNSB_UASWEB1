@@ -51,25 +51,37 @@ class SecureHeaders
             $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
         }
 
-        // Content Security Policy (more specific). Adjust hosts below to match your external CDNs.
-        // This policy allows scripts/styles from self and the common CDNs used (cdn.jsdelivr.net,cdnjs),
-        // allows images from self/data/https, and fonts from Google Fonts.
-        // Build CSP using nonce for inline scripts/styles and limiting external hosts.
-        $cspParts = [
-            "default-src 'self' https:",
-            // Note: Alpine.js evaluates template expressions using Function/new Function which requires
-            // 'unsafe-eval' in CSP. Adding it here restores Alpine behaviour. For stricter security,
-            // consider refactoring templates to avoid inline expressions or use a CSP-friendly Alpine build.
-            "script-src 'self' 'nonce-{$nonce}' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https:",
-            "style-src 'self' 'nonce-{$nonce}' 'unsafe-inline' https://fonts.googleapis.com https:",
-            "img-src 'self' data: https:",
-            "font-src 'self' https://fonts.gstatic.com data:",
-            "connect-src 'self' https:",
-            "frame-ancestors 'none'",
-            "base-uri 'self'",
-            "form-action 'self'",
-            "upgrade-insecure-requests",
-        ];
+        // Content Security Policy - relaxed for development, strict for production
+        $isDevelopment = config('app.env') === 'local' || config('app.debug');
+
+        if ($isDevelopment) {
+            // Development CSP - allows Vite dev server with IPv6 localhost
+            $cspParts = [
+                "default-src 'self' 'unsafe-eval' 'unsafe-inline'",
+                "script-src 'self' 'nonce-{$nonce}' 'unsafe-eval' 'unsafe-inline' http://localhost:* http://[::1]:* ws://localhost:* ws://[::1]:* https://cdn.jsdelivr.net https://cdnjs.cloudflare.com",
+                "style-src 'self' 'nonce-{$nonce}' 'unsafe-inline' https://fonts.googleapis.com https://fonts.bunny.net http://localhost:* http://[::1]:*",
+                "img-src 'self' data: https: http:",
+                "font-src 'self' https://fonts.gstatic.com https://fonts.bunny.net data:",
+                "connect-src 'self' ws://localhost:* ws://[::1]:* http://localhost:* http://[::1]:* https:",
+                "frame-ancestors 'none'",
+                "base-uri 'self'",
+                "form-action 'self'",
+            ];
+        } else {
+            // Production CSP - strict security
+            $cspParts = [
+                "default-src 'self' https:",
+                "script-src 'self' 'nonce-{$nonce}' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https:",
+                "style-src 'self' 'nonce-{$nonce}' 'unsafe-inline' https://fonts.googleapis.com https://fonts.bunny.net https:",
+                "img-src 'self' data: https:",
+                "font-src 'self' https://fonts.gstatic.com https://fonts.bunny.net data:",
+                "connect-src 'self' https:",
+                "frame-ancestors 'none'",
+                "base-uri 'self'",
+                "form-action 'self'",
+                'upgrade-insecure-requests',
+            ];
+        }
 
         // Join with semicolons so each directive is properly separated (required by CSP syntax)
         $response->headers->set('Content-Security-Policy', implode('; ', $cspParts));

@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use App\Models\Produk;
 use App\Models\Edukasi;
+use App\Models\Produk;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
         // Create Admin User
         User::create([
             'name' => 'Admin Haris',
-            'email' => 'admin@meubeul.test',
+            'email' => 'admin@meubel.test',
             'password' => Hash::make('Admin123'),
             'role' => 'admin',
         ]);
@@ -26,7 +26,7 @@ class DatabaseSeeder extends Seeder
         // Create Demo User
         User::create([
             'name' => 'User Budi',
-            'email' => 'user@meubeul.test',
+            'email' => 'user@meubel.test',
             'password' => Hash::make('user123'),
             'role' => 'user',
         ]);

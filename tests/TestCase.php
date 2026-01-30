@@ -17,7 +17,7 @@ abstract class TestCase extends BaseTestCase
     public function createApplication()
     {
         // If in-memory sqlite is not available, switch to MySQL for tests.
-        if (!extension_loaded('pdo_sqlite') && !extension_loaded('sqlite3')) {
+        if (! extension_loaded('pdo_sqlite') && ! extension_loaded('sqlite3')) {
             // Set reasonable defaults for Laragon: adjust if your MySQL differs
             putenv('DB_CONNECTION=mysql');
             putenv('DB_HOST=127.0.0.1');

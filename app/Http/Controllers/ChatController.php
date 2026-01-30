@@ -16,7 +16,7 @@ class ChatController extends Controller
         $messages = ChatMessage::where('user_id', Auth::id())
             ->orderBy('created_at', 'asc')
             ->get();
-        
+
         return response()->json($messages);
     }
 

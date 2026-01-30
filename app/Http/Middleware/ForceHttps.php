@@ -13,7 +13,7 @@ class ForceHttps
     public function handle(Request $request, Closure $next)
     {
         // Only enforce when configured; safe for local dev when false
-        if (!filter_var(env('FORCE_HTTPS', false), FILTER_VALIDATE_BOOLEAN)) {
+        if (! filter_var(env('FORCE_HTTPS', false), FILTER_VALIDATE_BOOLEAN)) {
             return $next($request);
         }
 
@@ -22,7 +22,7 @@ class ForceHttps
             return $next($request);
         }
 
-        $uri = 'https://' . $request->getHttpHost() . $request->getRequestUri();
+        $uri = 'https://'.$request->getHttpHost().$request->getRequestUri();
 
         return redirect()->to($uri, 301);
     }

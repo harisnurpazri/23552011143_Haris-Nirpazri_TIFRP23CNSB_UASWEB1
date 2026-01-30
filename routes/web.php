@@ -1,14 +1,16 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\ProdukController;
-use App\Http\Controllers\EdukasiController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\OrderController as AdminOrderController;
+use App\Http\Controllers\Admin\ProdukController as AdminProdukController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
-use App\Http\Controllers\Admin\ProdukController as AdminProdukController;
-use App\Http\Controllers\Admin\OrderController as AdminOrderController;
+use App\Http\Controllers\EdukasiController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ProdukController;
+use App\Http\Controllers\ProfileController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,9 +20,23 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/produk', [ProdukController::class, 'index'])->name('produk.index');
 Route::get('/produk/{id}', [ProdukController::class, 'show'])->name('produk.show');
 Route::get('/edukasi', [EdukasiController::class, 'index'])->name('edukasi.index');
 Route::get('/edukasi/{id}', [EdukasiController::class, 'show'])->name('edukasi.show');
+
+// Quick quote request handler (form on homepage). Minimal closure handler logs request and flashes a message.
+Route::post('/quote-request', function (Request $request) {
+    $request->validate([
+        'nama' => 'nullable|string|max:255',
+        'telepon' => 'nullable|string|max:50',
+        'kategori' => 'nullable|string|max:255',
+    ]);
+
+    Log::info('Quote request received', $request->only(['nama', 'telepon', 'kategori']));
+
+    return redirect()->back()->with('status', 'Permintaan penawaran terkirim. Kami akan menghubungi Anda.');
+})->name('quote.request');
 
 /*
 |--------------------------------------------------------------------------
@@ -31,12 +47,12 @@ Route::get('/edukasi/{id}', [EdukasiController::class, 'show'])->name('edukasi.s
 Route::middleware('auth')->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    
+
     // Profile (from Breeze)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    
+
     // Cart & Checkout (non-admin only)
     Route::middleware('not-admin')->group(function () {
         Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
@@ -63,18 +79,15 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
     // JSON endpoint for dashboard chart data
     Route::get('/dashboard/data', [AdminDashboardController::class, 'chartData'])->name('dashboard.data');
-    
+
     // Produk CRUD
     Route::resource('produk', AdminProdukController::class);
-    
+
     // Orders
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/export', [AdminOrderController::class, 'export'])->name('orders.export')->middleware('throttle:export');
     Route::get('/orders/{id}', [AdminOrderController::class, 'show'])->name('orders.show');
     Route::patch('/orders/{id}', [AdminOrderController::class, 'update'])->name('orders.update');
-
-    // Users
-    Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
 
     // Edukasi
     Route::resource('edukasi', \App\Http\Controllers\Admin\EdukasiController::class);
@@ -92,4 +105,3 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
-

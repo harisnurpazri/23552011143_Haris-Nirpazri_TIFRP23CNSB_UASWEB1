@@ -57,73 +57,71 @@ Alpine.start();
 					credentials: 'same-origin'
 				});
 
-				// If response isn't OK, try to parse JSON error message but continue to fallback count fetch
-				if (!resp.ok) {
-					let json = null;
-					try { json = await resp.json(); } catch (err) { /* ignore parse error */ }
-					const msg = (json && json.message) ? json.message : 'Terjadi kesalahan.';
-					createToast(msg, 'error');
-					console.warn('[cart] add response not ok', resp.status, resp.statusText);
-					// attempt to refresh badge regardless (server-side may have updated session)
+			// If response isn't OK, try to parse JSON error message and stop
+			if (!resp.ok) {
+				let json = null;
+				try { json = await resp.json(); } catch (err) { /* ignore parse error */ }
+				const msg = (json && json.message) ? json.message : 'Terjadi kesalahan.';
+				createToast(msg, 'error');
+				console.warn('[cart] add response not ok', resp.status, resp.statusText);
+				return; // Stop here - don't show success toast
+			}
+
+			// Try to parse JSON body if any (don't throw on parse error)
+			let data = {};
+			try { data = await resp.json() || {}; } catch (err) { data = {}; }
+
+			// Helper: ensure badge exists (create if missing)
+			function ensureBadge() {
+				let b = document.querySelector('[data-cart-count]');
+				if (b) return b;
+				// try to find cart link in navigation
+				const cartLink = document.querySelector('a[href*="/cart"]');
+				if (!cartLink) return null;
+				b = document.createElement('span');
+				b.setAttribute('data-cart-count', '0');
+				b.className = 'absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center hidden';
+				b.textContent = '0';
+				// ensure parent is positioned so absolute works
+				if (getComputedStyle(cartLink).position === 'static') cartLink.style.position = 'relative';
+				cartLink.appendChild(b);
+				return b;
+			}
+
+			// If server provided cartCount in response, use it immediately
+			if (data.cartCount !== undefined) {
+				const badge = ensureBadge();
+				if (badge) {
+					badge.textContent = data.cartCount;
+					if (Number(data.cartCount) > 0) badge.classList.remove('hidden'); else badge.classList.add('hidden');
 				}
+				console.debug('[cart] used cartCount from add response', data.cartCount);
+			}
 
-				// Try to parse JSON body if any (don't throw on parse error)
-				let data = {};
-				try { data = await resp.json() || {}; } catch (err) { data = {}; }
-
-				// Helper: ensure badge exists (create if missing)
-				function ensureBadge() {
-					let b = document.querySelector('[data-cart-count]');
-					if (b) return b;
-					// try to find cart link in navigation
-					const cartLink = document.querySelector('a[href*="/cart"]');
-					if (!cartLink) return null;
-					b = document.createElement('span');
-					b.setAttribute('data-cart-count', '0');
-					b.className = 'absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center hidden';
-					b.textContent = '0';
-					// ensure parent is positioned so absolute works
-					if (getComputedStyle(cartLink).position === 'static') cartLink.style.position = 'relative';
-					cartLink.appendChild(b);
-					return b;
-				}
-
-				// If server provided cartCount in response, use it immediately
-				if (data.cartCount !== undefined) {
+			// Always fetch authoritative cart count from server as a reliable fallback
+			try {
+				const countUrlMeta = document.querySelector('meta[name="cart-count-url"]');
+				const countUrl = countUrlMeta ? countUrlMeta.getAttribute('content') : '/cart/count';
+				console.debug('[cart] fetching fallback count from', countUrl);
+				const r = await fetch(countUrl, { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' });
+				if (r.ok) {
+					const cd = await r.json();
 					const badge = ensureBadge();
-					if (badge) {
-						badge.textContent = data.cartCount;
-						if (Number(data.cartCount) > 0) badge.classList.remove('hidden'); else badge.classList.add('hidden');
+					if (badge && cd.cartCount !== undefined) {
+						badge.textContent = cd.cartCount;
+						if (Number(cd.cartCount) > 0) badge.classList.remove('hidden'); else badge.classList.add('hidden');
+						console.debug('[cart] fallback count', cd.cartCount);
 					}
-					console.debug('[cart] used cartCount from add response', data.cartCount);
+				} else {
+					console.warn('[cart] Failed to fetch cart count fallback', r.status, r.statusText);
 				}
+			} catch (err) {
+				console.warn('[cart] Error fetching cart count fallback', err);
+			}
 
-				// Always fetch authoritative cart count from server as a reliable fallback
-				try {
-					const countUrlMeta = document.querySelector('meta[name="cart-count-url"]');
-					const countUrl = countUrlMeta ? countUrlMeta.getAttribute('content') : '/cart/count';
-					console.debug('[cart] fetching fallback count from', countUrl);
-					const r = await fetch(countUrl, { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' });
-					if (r.ok) {
-						const cd = await r.json();
-						const badge = ensureBadge();
-						if (badge && cd.cartCount !== undefined) {
-							badge.textContent = cd.cartCount;
-							if (Number(cd.cartCount) > 0) badge.classList.remove('hidden'); else badge.classList.add('hidden');
-							console.debug('[cart] fallback count', cd.cartCount);
-						}
-					} else {
-						console.warn('[cart] Failed to fetch cart count fallback', r.status, r.statusText);
-					}
-				} catch (err) {
-					console.warn('[cart] Error fetching cart count fallback', err);
-				}
-
-				// show toast success
-				const message = data.message || 'Produk ditambahkan ke keranjang!';
-				createToast(message, 'success');
-
-				// restore scroll position to avoid jumping
+			// show toast success only when response is OK
+			const message = data.message || 'Produk ditambahkan ke keranjang!';
+			createToast(message, 'success');				// restore scroll position to avoid jumping
 				window.scrollTo({ top: scrollY });
 
 			} catch (err) {
@@ -257,4 +255,296 @@ Alpine.start();
 	} else {
 		initAll();
 	}
+})();
+
+// ========================================
+// ENHANCED UI INTERACTIONS
+// ========================================
+
+(function() {
+	'use strict';
+
+	// Smooth Scroll for Anchor Links
+	function initSmoothScroll() {
+		document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+			anchor.addEventListener('click', function(e) {
+				const href = this.getAttribute('href');
+				if (href === '#' || href === '#!') return;
+				
+				const target = document.querySelector(href);
+				if (target) {
+					e.preventDefault();
+					target.scrollIntoView({
+						behavior: 'smooth',
+						block: 'start'
+					});
+				}
+			});
+		});
+	}
+
+	// Intersection Observer for Scroll Animations
+	function initScrollAnimations() {
+		const observerOptions = {
+			threshold: 0.1,
+			rootMargin: '0px 0px -100px 0px'
+		};
+
+		const observer = new IntersectionObserver((entries) => {
+			entries.forEach(entry => {
+				if (entry.isIntersecting) {
+					entry.target.classList.add('animate-fade-in');
+					observer.unobserve(entry.target);
+				}
+			});
+		}, observerOptions);
+
+		// Observe elements with data-animate attribute
+		document.querySelectorAll('[data-animate]').forEach(el => {
+			el.style.opacity = '0';
+			observer.observe(el);
+		});
+	}
+
+	// Sticky Header Effect
+	function initStickyHeader() {
+		const header = document.querySelector('.sticky-header');
+		if (!header) return;
+
+		let lastScroll = 0;
+		window.addEventListener('scroll', () => {
+			const currentScroll = window.pageYOffset;
+			
+			if (currentScroll > 100) {
+				header.classList.add('scrolled');
+			} else {
+				header.classList.remove('scrolled');
+			}
+			
+			lastScroll = currentScroll;
+		});
+	}
+
+	// Image Lazy Loading with Fade Effect
+	function initLazyLoading() {
+		if ('IntersectionObserver' in window) {
+			const imageObserver = new IntersectionObserver((entries, observer) => {
+				entries.forEach(entry => {
+					if (entry.isIntersecting) {
+						const img = entry.target;
+						img.src = img.dataset.src;
+						img.classList.add('fade-in');
+						observer.unobserve(img);
+					}
+				});
+			});
+
+			document.querySelectorAll('img[data-src]').forEach(img => {
+				imageObserver.observe(img);
+			});
+		}
+	}
+
+	// Product Card Hover Effects
+	function initProductCardEffects() {
+		document.querySelectorAll('.product-card').forEach(card => {
+			card.addEventListener('mouseenter', function() {
+				this.style.transform = 'translateY(-8px)';
+			});
+			
+			card.addEventListener('mouseleave', function() {
+				this.style.transform = 'translateY(0)';
+			});
+		});
+	}
+
+	// Enhanced Toast Notifications
+	window.showToast = function(message, type = 'success') {
+		const toast = document.createElement('div');
+		toast.className = `fixed top-6 right-6 z-50 max-w-sm toast-slide-in`;
+		
+		const bgColor = type === 'success' ? 'bg-green-600' : 
+		                type === 'error' ? 'bg-red-600' : 
+		                type === 'warning' ? 'bg-yellow-600' : 'bg-blue-600';
+		
+		const icon = type === 'success' ? '✓' : 
+		             type === 'error' ? '✕' : 
+		             type === 'warning' ? '⚠' : 'ℹ';
+		
+		toast.innerHTML = `
+			<div class="${bgColor} text-white px-6 py-4 rounded-lg shadow-2xl flex items-center gap-3">
+				<span class="text-2xl">${icon}</span>
+				<span class="flex-1">${message}</span>
+				<button onclick="this.closest('div').parentElement.remove()" class="ml-2 hover:opacity-75">
+					<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+						<path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+					</svg>
+				</button>
+			</div>
+		`;
+		
+		document.body.appendChild(toast);
+		
+		setTimeout(() => {
+			toast.style.opacity = '0';
+			toast.style.transform = 'translateX(100%)';
+			setTimeout(() => toast.remove(), 300);
+		}, 4000);
+	};
+
+	// Parallax Effect for Hero Section
+	function initParallax() {
+		const parallaxElements = document.querySelectorAll('.parallax');
+		if (parallaxElements.length === 0) return;
+
+		window.addEventListener('scroll', () => {
+			const scrolled = window.pageYOffset;
+			parallaxElements.forEach(el => {
+				const speed = el.dataset.speed || 0.5;
+				el.style.transform = `translateY(${scrolled * speed}px)`;
+			});
+		});
+	}
+
+	// Back to Top Button
+	function initBackToTop() {
+		const backToTop = document.createElement('button');
+		backToTop.innerHTML = `
+			<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+			</svg>
+		`;
+		backToTop.className = 'fixed bottom-6 left-6 bg-amber-600 text-white p-4 rounded-full shadow-lg hover:bg-amber-700 transition opacity-0 pointer-events-none z-50';
+		backToTop.setAttribute('aria-label', 'Kembali ke atas');
+		document.body.appendChild(backToTop);
+
+		window.addEventListener('scroll', () => {
+			if (window.pageYOffset > 300) {
+				backToTop.style.opacity = '1';
+				backToTop.style.pointerEvents = 'auto';
+			} else {
+				backToTop.style.opacity = '0';
+				backToTop.style.pointerEvents = 'none';
+			}
+		});
+
+		backToTop.addEventListener('click', () => {
+			window.scrollTo({ top: 0, behavior: 'smooth' });
+		});
+	}
+
+	// Search Auto-complete (Basic)
+	function initSearchAutocomplete() {
+		const searchInput = document.querySelector('input[name="search"]');
+		if (!searchInput) return;
+
+		let timeout;
+		searchInput.addEventListener('input', function() {
+			clearTimeout(timeout);
+			const value = this.value.trim();
+			
+			if (value.length < 2) return;
+			
+			timeout = setTimeout(() => {
+				// Could fetch suggestions from server here
+				console.log('Search suggestion for:', value);
+			}, 300);
+		});
+	}
+
+	// Image Gallery Lightbox (Simple)
+	function initLightbox() {
+		document.querySelectorAll('[data-lightbox]').forEach(trigger => {
+			trigger.addEventListener('click', function(e) {
+				e.preventDefault();
+				const imgSrc = this.getAttribute('href') || this.querySelector('img')?.src;
+				if (!imgSrc) return;
+
+				const lightbox = document.createElement('div');
+				lightbox.className = 'fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4';
+				lightbox.innerHTML = `
+					<button class="absolute top-4 right-4 text-white text-4xl hover:text-gray-300" onclick="this.parentElement.remove()">
+						&times;
+					</button>
+					<img src="${imgSrc}" class="max-w-full max-h-full object-contain animate-scale-in" alt="Preview">
+				`;
+				document.body.appendChild(lightbox);
+
+				lightbox.addEventListener('click', function(e) {
+					if (e.target === lightbox) {
+						lightbox.remove();
+					}
+				});
+			});
+		});
+	}
+
+	// Number Counter Animation
+	function initCounterAnimation() {
+		const counters = document.querySelectorAll('[data-counter]');
+		const duration = 2000;
+
+		const observer = new IntersectionObserver((entries) => {
+			entries.forEach(entry => {
+				if (entry.isIntersecting) {
+					const target = entry.target;
+					const targetNumber = parseInt(target.dataset.counter) || parseInt(target.textContent.replace(/\D/g, ''));
+					const increment = targetNumber / (duration / 16);
+					let current = 0;
+
+					const updateCounter = () => {
+						current += increment;
+						if (current < targetNumber) {
+							target.textContent = Math.ceil(current).toLocaleString('id-ID');
+							requestAnimationFrame(updateCounter);
+						} else {
+							target.textContent = targetNumber.toLocaleString('id-ID') + (target.dataset.suffix || '');
+						}
+					};
+
+					updateCounter();
+					observer.unobserve(target);
+				}
+			});
+		}, { threshold: 0.5 });
+
+		counters.forEach(counter => observer.observe(counter));
+	}
+
+	// Cart Badge Animation
+	function animateCartBadge() {
+		const badge = document.querySelector('[data-cart-count]');
+		if (badge && badge.textContent !== '0') {
+			badge.classList.add('badge-bounce');
+			setTimeout(() => badge.classList.remove('badge-bounce'), 500);
+		}
+	}
+
+	// Initialize All Enhanced Features
+	function initEnhancedUI() {
+		// Remove preload class to enable animations
+		document.body.classList.remove('preload');
+		
+		initSmoothScroll();
+		initScrollAnimations();
+		initStickyHeader();
+		initLazyLoading();
+		initProductCardEffects();
+		initParallax();
+		initBackToTop();
+		initSearchAutocomplete();
+		initLightbox();
+		initCounterAnimation();
+	}
+
+	// Initialize when DOM is ready
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', initEnhancedUI);
+	} else {
+		initEnhancedUI();
+	}
+
+	// Export animateCartBadge for use by other scripts
+	window.animateCartBadge = animateCartBadge;
+
 })();

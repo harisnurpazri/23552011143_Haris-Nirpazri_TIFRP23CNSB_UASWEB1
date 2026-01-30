@@ -11,8 +11,6 @@ class PreventAdminFromPurchasing
      * Handle an incoming request.
      * Redirect admin users away from cart/checkout actions.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
      * @return mixed
      */
     public function handle(Request $request, Closure $next)
@@ -20,8 +18,12 @@ class PreventAdminFromPurchasing
         $user = $request->user();
 
         if ($user && method_exists($user, 'isAdmin') && $user->isAdmin()) {
-            if ($request->expectsJson()) {
-                return response()->json(['message' => 'Admin tidak diizinkan melakukan pembelian.'], 403);
+            // Check if request is AJAX/JSON
+            if ($request->expectsJson() || $request->ajax() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Admin tidak diizinkan melakukan pembelian.',
+                ], 403);
             }
 
             // Redirect admins to admin dashboard if available, otherwise to root

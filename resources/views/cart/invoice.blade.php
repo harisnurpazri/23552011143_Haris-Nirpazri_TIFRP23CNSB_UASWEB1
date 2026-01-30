@@ -19,7 +19,7 @@
                         </svg>
                     </div>
                     <h1 class="text-2xl font-bold mb-2">Pesanan Berhasil!</h1>
-                    <p class="text-white/80">Terima kasih telah berbelanja di Meubeul Dua Putra</p>
+                    <p class="text-white/80">Terima kasih telah berbelanja di Meubel Dua Putra</p>
                 </div>
 
                 <div class="p-8">

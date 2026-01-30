@@ -1,4 +1,5 @@
 <?php
+
 // Create test database if not exists using PDO
 $host = '127.0.0.1';
 $port = 3306;
@@ -10,6 +11,6 @@ try {
     $pdo->exec("CREATE DATABASE IF NOT EXISTS $db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
     echo "OK\n";
 } catch (PDOException $e) {
-    echo "ERROR: " . $e->getMessage() . "\n";
+    echo 'ERROR: '.$e->getMessage()."\n";
     exit(1);
 }

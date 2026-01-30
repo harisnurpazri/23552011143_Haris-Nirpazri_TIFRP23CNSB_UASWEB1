@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Produk;
 use App\Models\Order;
+use App\Models\Produk;
 use Illuminate\Http\Request;
 
 class CartController extends Controller
@@ -38,7 +38,7 @@ class CartController extends Controller
         $items = [];
         $total = 0;
 
-        if (!empty($cart)) {
+        if (! empty($cart)) {
             foreach ($cart as $productId => $qty) {
                 $product = Produk::find($productId);
                 if ($product) {
@@ -64,13 +64,11 @@ class CartController extends Controller
      */
     public function add(Request $request, $id)
     {
-        if ($resp = $this->denyIfAdmin($request)) {
-            return $resp;
-        }
+        // Admin check is handled by 'not-admin' middleware, so no need to check here
 
         $product = Produk::findOrFail($id);
-        
-        if (!$product->isInStock()) {
+
+        if (! $product->isInStock()) {
             // For AJAX callers, return JSON error; otherwise normal redirect back
             if ($request->ajax() || $request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
                 return response()->json(['success' => false, 'message' => 'Produk tidak tersedia.'], 422);
@@ -80,7 +78,7 @@ class CartController extends Controller
         }
 
         $cart = session('cart', []);
-        
+
         if (isset($cart[$id])) {
             $cart[$id]++;
         } else {
@@ -107,16 +105,14 @@ class CartController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if ($resp = $this->denyIfAdmin($request)) {
-            return $resp;
-        }
+        // Admin check is handled by 'not-admin' middleware
 
         $request->validate([
             'qty' => 'required|integer|min:1',
         ]);
 
         $cart = session('cart', []);
-        
+
         if (isset($cart[$id])) {
             $cart[$id] = $request->qty;
             session(['cart' => $cart]);
@@ -130,14 +126,10 @@ class CartController extends Controller
      */
     public function remove($id)
     {
-        // create a fake request to check user role via auth helper
-        $request = request();
-        if ($resp = $this->denyIfAdmin($request)) {
-            return $resp;
-        }
+        // Admin check is handled by 'not-admin' middleware
 
         $cart = session('cart', []);
-        
+
         if (isset($cart[$id])) {
             unset($cart[$id]);
             session(['cart' => $cart]);
@@ -157,7 +149,7 @@ class CartController extends Controller
         }
 
         $cart = session('cart', []);
-        
+
         if (empty($cart)) {
             return redirect()->route('home')->with('error', 'Keranjang kosong!');
         }
@@ -194,7 +186,7 @@ class CartController extends Controller
         }
 
         $cart = session('cart', []);
-        
+
         if (empty($cart)) {
             return redirect()->route('home')->with('error', 'Keranjang kosong!');
         }
@@ -243,7 +235,7 @@ class CartController extends Controller
         }
 
         $order = Order::where('user_id', auth()->id())->findOrFail($id);
-        
+
         return view('cart.invoice', [
             'order' => $order,
         ]);
@@ -255,6 +247,7 @@ class CartController extends Controller
     public function count(Request $request)
     {
         $cart = $request->session()->get('cart', []);
+
         return response()->json([
             'cartCount' => array_sum($cart),
         ]);

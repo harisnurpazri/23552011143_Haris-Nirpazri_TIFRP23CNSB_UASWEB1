@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ChatMessage;
 use App\Models\Order;
 use App\Models\Produk;
 use App\Models\User;
-use App\Models\ChatMessage;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -18,7 +18,9 @@ class DashboardController extends Controller
     {
         $period = request()->input('period', 7);
         $period = (int) $period;
-        if ($period <= 0) $period = 7;
+        if ($period <= 0) {
+            $period = 7;
+        }
         // limit to prevent excessive queries
         $period = min($period, 90);
         // Stats
@@ -44,10 +46,10 @@ class DashboardController extends Controller
         for ($i = $period - 1; $i >= 0; $i--) {
             $date = now()->subDays($i)->format('Y-m-d');
             $entry = $raw->get($date);
-            $chartData->push((object)[
+            $chartData->push((object) [
                 'dt' => $date,
-                'cnt' => $entry ? (int)$entry->cnt : 0,
-                'revenue' => $entry ? (float)$entry->revenue : 0,
+                'cnt' => $entry ? (int) $entry->cnt : 0,
+                'revenue' => $entry ? (float) $entry->revenue : 0,
             ]);
         }
 
@@ -76,7 +78,9 @@ class DashboardController extends Controller
     {
         $period = $request->input('period', 7);
         $period = (int) $period;
-        if ($period <= 0) $period = 7;
+        if ($period <= 0) {
+            $period = 7;
+        }
         $period = min($period, 90);
 
         $startDate = now()->subDays($period - 1)->startOfDay();
@@ -93,8 +97,8 @@ class DashboardController extends Controller
             $entry = $raw->get($date);
             $chartData->push([
                 'dt' => $date,
-                'cnt' => $entry ? (int)$entry->cnt : 0,
-                'revenue' => $entry ? (float)$entry->revenue : 0,
+                'cnt' => $entry ? (int) $entry->cnt : 0,
+                'revenue' => $entry ? (float) $entry->revenue : 0,
             ]);
         }
 

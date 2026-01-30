@@ -20,7 +20,7 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         <style nonce="{{ $cspNonce ?? '' }}">[x-cloak]{display:none!important;}</style>
     </head>
-    <body class="font-sans antialiased">
+    <body class="font-sans antialiased preload">
         <div class="min-h-screen bg-gray-100">
             @include('layouts.navigation')
 
@@ -55,7 +55,7 @@
             <main>
                 {{ $slot }}
             </main>
-            
+
             <!-- Confirm Modal (custom) -->
             <div id="confirm-modal" x-cloak class="hidden fixed inset-0 z-50 items-center justify-center">
                 <div class="absolute inset-0 bg-black/40"></div>
@@ -78,7 +78,7 @@
         @if(auth()->user()->role === 'user')
         <div x-data="chatWidget" x-init="initChat()" class="fixed bottom-6 right-6 z-70 pointer-events-auto">
             <!-- Chat Button -->
-                    <button @click.stop="toggleChat()" 
+                    <button @click.stop="toggleChat()"
                     class="bg-amber-600 hover:bg-amber-700 text-white rounded-full p-4 shadow-lg transition transform hover:scale-105 flex items-center justify-center pointer-events-auto">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
@@ -94,7 +94,7 @@
                  x-transition:leave-start="opacity-100 translate-y-0 scale-100"
                  x-transition:leave-end="opacity-0 translate-y-4 scale-95"
                  class="absolute bottom-20 right-0 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
-                
+
                 <!-- Header -->
                 <div class="bg-amber-600 p-4 flex justify-between items-center text-white">
                     <h3 class="font-bold">Live Chat Admin</h3>
@@ -120,9 +120,9 @@
 
                 <!-- Input Area -->
                 <form @submit.prevent="sendMessage" class="p-3 bg-white border-t flex gap-2">
-                    <input type="text" x-model="newMessage" placeholder="Tulis pesan..." 
+                    <input type="text" x-model="newMessage" placeholder="Tulis pesan..."
                            class="flex-1 border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500">
-                    <button type="submit" :disabled="!newMessage.trim()" 
+                    <button type="submit" :disabled="!newMessage.trim()"
                             class="bg-amber-600 text-white rounded-full p-2 hover:bg-amber-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
                         <svg class="w-5 h-5 transform rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
@@ -201,7 +201,7 @@
                                     },
                                     body: JSON.stringify({ message: this.newMessage })
                                 });
-                                
+
                                 const data = await response.json();
                                 console.log('sendMessage response', data);
                                 this.messages.push(data);
@@ -259,13 +259,29 @@
                             return;
                         }
 
+                        var openChatEl = closestWithAttr(target, 'data-open-chat');
+                        if (openChatEl) {
+                            e.preventDefault();
+                            // If chat widget exists (user logged in and role=user), trigger its toggle
+                            var chatHost = document.querySelector('[x-data="chatWidget"]');
+                            if (chatHost) {
+                                var chatBtn = chatHost.querySelector('button');
+                                if (chatBtn) chatBtn.click();
+                            } else {
+                                // Not logged in or chat not available: redirect to login
+                                window.location = '{{ route('login') }}';
+                            }
+                            return;
+                        }
+
                         var openModalEl = closestWithAttr(target, 'data-open-modal');
                         if (openModalEl) {
                             e.preventDefault();
                             var id = openModalEl.getAttribute('data-open-modal');
                             var node = document.getElementById(id);
                             if (node) {
-                                node.classList.remove('hidden'); node.classList.add('flex'); document.body.style.overflow='hidden';
+                                node.classList.remove('hidden'); node.classList.add('flex');
+                                document.body.classList.add('overflow-hidden');
                             }
                             return;
                         }
@@ -276,7 +292,8 @@
                             var id = closeModalEl.getAttribute('data-close-modal');
                             var node = document.getElementById(id);
                             if (node) {
-                                node.classList.add('hidden'); node.classList.remove('flex'); document.body.style.overflow='auto';
+                                node.classList.add('hidden'); node.classList.remove('flex');
+                                document.body.classList.remove('overflow-hidden');
                             }
                             return;
                         }

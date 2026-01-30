@@ -1,0 +1,133 @@
+<x-app-layout>
+    <div class="py-12 bg-gradient-to-br from-amber-50 via-white to-orange-50 min-h-screen">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Hero Header dengan Animasi -->
+            <div class="text-center mb-16 relative">
+                <div class="absolute inset-0 flex items-center justify-center opacity-10">
+                    <div class="w-96 h-96 bg-gradient-to-br from-amber-400 to-orange-600 rounded-full animate-pulse"></div>
+                </div>
+                
+                <!-- Floating Icon dengan Animasi -->
+                <div class="relative inline-block mb-6">
+                    <div class="w-24 h-24 mx-auto bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 rounded-3xl flex items-center justify-center shadow-2xl transform rotate-3 hover:rotate-0 transition-all duration-500 hover:scale-110 relative overflow-hidden group">
+                        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                        <svg class="w-12 h-12 text-white relative z-10 drop-shadow-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                        </svg>
+                    </div>
+                    <!-- Floating Particles -->
+                    <div class="absolute top-0 left-0 w-full h-full pointer-events-none">
+                        <div class="absolute top-2 left-2 w-2 h-2 bg-amber-400 rounded-full animate-ping"></div>
+                        <div class="absolute bottom-2 right-2 w-1 h-1 bg-orange-500 rounded-full animate-pulse"></div>
+                        <div class="absolute top-1/2 -right-4 w-3 h-3 bg-yellow-400 rounded-full animate-bounce"></div>
+                    </div>
+                </div>
+
+                <h1 class="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-600 via-orange-600 to-amber-800 mb-4 tracking-tight">
+                    Edukasi Premium
+                </h1>
+                <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed">
+                    Jelajahi dunia kayu berkualitas tinggi dan temukan rahasia furniture terbaik untuk rumah impian Anda
+                </p>
+                
+                <!-- Statistik dengan Animasi Counter -->
+                <div class="grid grid-cols-3 gap-6 max-w-md mx-auto">
+                    <div class="text-center group">
+                        <div class="text-3xl font-bold text-amber-600 group-hover:text-amber-700 transition-colors counter" data-target="{{ $edukasiList->count() }}">0</div>
+                        <div class="text-sm text-gray-500">Artikel</div>
+                    </div>
+                    <div class="text-center group">
+                        <div class="text-3xl font-bold text-amber-600 group-hover:text-amber-700 transition-colors counter" data-target="50">0</div>
+                        <div class="text-sm text-gray-500">Tips Kayu</div>
+                    </div>
+                    <div class="text-center group">
+                        <div class="text-3xl font-bold text-amber-600 group-hover:text-amber-700 transition-colors counter" data-target="100">0</div>
+                        <div class="text-sm text-gray-500">% Gratis</div>
+                    </div>
+                </div>
+            </div>
+
+            @if($edukasiList->isEmpty())
+                <div class="bg-white rounded-2xl p-12 text-center shadow-sm">
+                    <div class="text-6xl mb-4">📚</div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Belum Ada Konten Edukasi</h3>
+                    <p class="text-gray-600">Konten edukasi akan segera ditambahkan</p>
+                </div>
+            @else
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    @foreach($edukasiList as $edu)
+                    <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition group">
+                        <div class="h-48 bg-gray-100 overflow-hidden">
+                            @if($edu->gambar && file_exists(public_path('assets/img/' . $edu->gambar)))
+                                <img src="{{ asset('assets/img/' . $edu->gambar) }}" 
+                                     alt="{{ $edu->judul }}"
+                                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                            @else
+                                <div class="w-full h-full flex items-center justify-center text-gray-400">
+                                    <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                </div>
+                            @endif
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">{{ $edu->judul }}</h3>
+                            <p class="text-gray-600 line-clamp-3 mb-4">{{ $edu->konten }}</p>
+                            <button data-open-modal="modal-{{ $edu->id }}" class="inline-flex items-center text-amber-600 font-semibold hover:text-amber-700">
+                                Baca Selengkapnya
+                                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Modal -->
+                    <div id="modal-{{ $edu->id }}" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+                        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                            <div class="bg-gradient-to-r from-amber-700 to-amber-600 text-white p-6 flex justify-between items-center">
+                                <h3 class="text-xl font-bold">{{ $edu->judul }}</h3>
+                                <button data-close-modal="modal-{{ $edu->id }}" class="text-white/80 hover:text-white">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="p-6">
+                                @if($edu->gambar && file_exists(public_path('assets/img/' . $edu->gambar)))
+                                    <img src="{{ asset('assets/img/' . $edu->gambar) }}" 
+                                         alt="{{ $edu->judul }}"
+                                         class="w-full h-64 object-cover rounded-xl mb-6">
+                                @endif
+                                <div class="text-gray-700 leading-relaxed whitespace-pre-line">{{ $edu->konten }}</div>
+                                <div class="mt-6 pt-4 border-t text-sm text-gray-500">
+                                    Dipublikasikan: {{ $edu->created_at->format('d F Y') }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            @endif
+
+            <div class="text-center mt-12">
+                <a href="{{ route('home') }}" class="inline-flex items-center px-6 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:border-gray-400 transition">
+                    ← Kembali ke Beranda
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script nonce="{{ $cspNonce ?? '' }}">
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+            document.getElementById(id).classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+            document.getElementById(id).classList.remove('flex');
+            document.body.style.overflow = 'auto';
+        }
+    </script>
+</x-app-layout>
