@@ -72,9 +72,9 @@
                                         <form action="{{ route('cart.update', $item['product']->id) }}" method="POST" class="flex items-center">
                                             @csrf
                                             @method('PATCH')
-                                            <button type="button" onclick="updateQty(this, -1)" class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-gray-200">-</button>
+                                            <button type="button" data-qty-action="decrement" class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-gray-200">-</button>
                                             <input type="number" name="qty" value="{{ $item['qty'] }}" min="1" class="w-12 text-center border-0 font-semibold">
-                                            <button type="button" onclick="updateQty(this, 1)" class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-gray-200">+</button>
+                                            <button type="button" data-qty-action="increment" class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-gray-200">+</button>
                                             <button type="submit" class="ml-2 px-3 py-1 bg-amber-100 text-amber-700 text-sm rounded-lg hover:bg-amber-200">Update</button>
                                         </form>
                                     </div>
@@ -88,7 +88,7 @@
                                     <form action="{{ route('cart.remove', $item['product']->id) }}" method="POST">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="text-red-500 hover:text-red-700" onclick="return confirm('Hapus produk ini?')">
+                                        <button type="submit" class="text-red-500 hover:text-red-700" data-confirm="Hapus produk ini?">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                             </svg>
@@ -139,7 +139,7 @@
         </div>
     </div>
 
-    <script>
+    <script nonce="{{ $cspNonce ?? '' }}">
         function updateQty(btn, delta) {
             const input = btn.parentNode.querySelector('input[name="qty"]');
             let val = parseInt(input.value) + delta;

@@ -30,7 +30,7 @@ class Produk extends Model
      */
     public function getFormattedHargaAttribute(): string
     {
-        return 'Rp ' . number_format($this->harga, 0, ',', '.');
+        return 'Rp '.number_format($this->harga, 0, ',', '.');
     }
 
     /**
@@ -65,6 +65,7 @@ class Produk extends Model
         if ($kategori) {
             return $query->where('kategori', $kategori);
         }
+
         return $query;
     }
 
@@ -75,8 +76,9 @@ class Produk extends Model
     {
         if ($search) {
             return $query->where('nama_produk', 'like', "%{$search}%")
-                        ->orWhere('deskripsi', 'like', "%{$search}%");
+                ->orWhere('deskripsi', 'like', "%{$search}%");
         }
+
         return $query;
     }
 }

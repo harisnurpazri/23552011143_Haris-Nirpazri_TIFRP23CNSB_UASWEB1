@@ -20,8 +20,8 @@ class HomeController extends Controller
 
         // Get products with filters
         $products = Produk::query()
-            ->when($search, fn($q) => $q->search($search))
-            ->when($kategori, fn($q) => $q->byKategori($kategori))
+            ->when($search, fn ($q) => $q->search($search))
+            ->when($kategori, fn ($q) => $q->byKategori($kategori))
             ->orderBy('created_at', 'desc')
             ->get();
 

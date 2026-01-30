@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Edukasi;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\File;
 
 class EdukasiController extends Controller
 {
@@ -15,6 +14,7 @@ class EdukasiController extends Controller
     public function index()
     {
         $edukasiList = Edukasi::latest()->paginate(10);
+
         return view('admin.edukasi.index', compact('edukasiList'));
     }
 
@@ -41,7 +41,7 @@ class EdukasiController extends Controller
 
         if ($image = $request->file('gambar')) {
             $destinationPath = public_path('assets/img');
-            $profileImage = date('YmdHis') . "_" . $image->getClientOriginalName();
+            $profileImage = date('YmdHis').'_'.$image->getClientOriginalName();
             $image->move($destinationPath, $profileImage);
             $input['gambar'] = $profileImage;
         }
@@ -49,7 +49,7 @@ class EdukasiController extends Controller
         Edukasi::create($input);
 
         return redirect()->route('admin.edukasi.index')
-                        ->with('success', 'Artikel edukasi berhasil ditambahkan.');
+            ->with('success', 'Artikel edukasi berhasil ditambahkan.');
     }
 
     /**
@@ -75,12 +75,12 @@ class EdukasiController extends Controller
 
         if ($image = $request->file('gambar')) {
             // Delete old image
-            if ($edukasi->gambar && file_exists(public_path('assets/img/' . $edukasi->gambar))) {
-                unlink(public_path('assets/img/' . $edukasi->gambar));
+            if ($edukasi->gambar && file_exists(public_path('assets/img/'.$edukasi->gambar))) {
+                unlink(public_path('assets/img/'.$edukasi->gambar));
             }
 
             $destinationPath = public_path('assets/img');
-            $profileImage = date('YmdHis') . "_" . $image->getClientOriginalName();
+            $profileImage = date('YmdHis').'_'.$image->getClientOriginalName();
             $image->move($destinationPath, $profileImage);
             $input['gambar'] = $profileImage;
         } else {
@@ -90,7 +90,7 @@ class EdukasiController extends Controller
         $edukasi->update($input);
 
         return redirect()->route('admin.edukasi.index')
-                        ->with('success', 'Artikel edukasi berhasil diperbarui.');
+            ->with('success', 'Artikel edukasi berhasil diperbarui.');
     }
 
     /**
@@ -98,13 +98,13 @@ class EdukasiController extends Controller
      */
     public function destroy(Edukasi $edukasi)
     {
-        if ($edukasi->gambar && file_exists(public_path('assets/img/' . $edukasi->gambar))) {
-            unlink(public_path('assets/img/' . $edukasi->gambar));
+        if ($edukasi->gambar && file_exists(public_path('assets/img/'.$edukasi->gambar))) {
+            unlink(public_path('assets/img/'.$edukasi->gambar));
         }
 
         $edukasi->delete();
 
         return redirect()->route('admin.edukasi.index')
-                        ->with('success', 'Artikel edukasi berhasil dihapus.');
+            ->with('success', 'Artikel edukasi berhasil dihapus.');
     }
 }

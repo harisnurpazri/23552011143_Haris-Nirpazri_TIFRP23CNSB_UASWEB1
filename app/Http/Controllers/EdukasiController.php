@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Edukasi;
-use Illuminate\Http\Request;
 
 class EdukasiController extends Controller
 {
@@ -13,7 +12,7 @@ class EdukasiController extends Controller
     public function index()
     {
         $edukasiList = Edukasi::orderBy('created_at', 'desc')->get();
-        
+
         return view('edukasi.index', [
             'edukasiList' => $edukasiList,
         ]);
@@ -25,7 +24,7 @@ class EdukasiController extends Controller
     public function show($id)
     {
         $edukasi = Edukasi::findOrFail($id);
-        
+
         return view('edukasi.show', [
             'edukasi' => $edukasi,
         ]);

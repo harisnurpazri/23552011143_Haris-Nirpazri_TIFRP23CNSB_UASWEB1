@@ -1,0 +1,15 @@
+parameters:
+    paths:
+        - app/
+        - config/
+        - routes/
+
+    # Analysis level (0-10, where 10 is the strictest)
+    level: 5
+
+    # Exclude certain patterns
+    excludePaths:
+        - database/migrations/*
+        - bootstrap/cache/*
+        - storage/*
+        - vendor/*

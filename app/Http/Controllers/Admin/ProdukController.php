@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Produk;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class ProdukController extends Controller
 {
@@ -15,7 +14,7 @@ class ProdukController extends Controller
     public function index()
     {
         $products = Produk::orderBy('created_at', 'desc')->paginate(10);
-        
+
         return view('admin.produk.index', [
             'products' => $products,
         ]);
@@ -27,7 +26,7 @@ class ProdukController extends Controller
     public function create()
     {
         $categories = Produk::distinct()->pluck('kategori')->filter()->sort();
-        
+
         return view('admin.produk.create', [
             'categories' => $categories,
         ]);
@@ -49,7 +48,7 @@ class ProdukController extends Controller
 
         if ($request->hasFile('gambar')) {
             $file = $request->file('gambar');
-            $filename = time() . '_' . $file->getClientOriginalName();
+            $filename = time().'_'.$file->getClientOriginalName();
             $file->move(public_path('assets/img'), $filename);
             $validated['gambar'] = $filename;
         }
@@ -67,7 +66,7 @@ class ProdukController extends Controller
     {
         $produk = Produk::findOrFail($id);
         $categories = Produk::distinct()->pluck('kategori')->filter()->sort();
-        
+
         return view('admin.produk.edit', [
             'produk' => $produk,
             'categories' => $categories,
@@ -92,12 +91,12 @@ class ProdukController extends Controller
 
         if ($request->hasFile('gambar')) {
             // Delete old image if exists
-            if ($produk->gambar && file_exists(public_path('assets/img/' . $produk->gambar))) {
-                unlink(public_path('assets/img/' . $produk->gambar));
+            if ($produk->gambar && file_exists(public_path('assets/img/'.$produk->gambar))) {
+                unlink(public_path('assets/img/'.$produk->gambar));
             }
-            
+
             $file = $request->file('gambar');
-            $filename = time() . '_' . $file->getClientOriginalName();
+            $filename = time().'_'.$file->getClientOriginalName();
             $file->move(public_path('assets/img'), $filename);
             $validated['gambar'] = $filename;
         }
@@ -116,8 +115,8 @@ class ProdukController extends Controller
         $produk = Produk::findOrFail($id);
 
         // Delete image if exists
-        if ($produk->gambar && file_exists(public_path('assets/img/' . $produk->gambar))) {
-            unlink(public_path('assets/img/' . $produk->gambar));
+        if ($produk->gambar && file_exists(public_path('assets/img/'.$produk->gambar))) {
+            unlink(public_path('assets/img/'.$produk->gambar));
         }
 
         $produk->delete();

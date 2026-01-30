@@ -5,9 +5,21 @@
             <h1 class="text-2xl font-bold text-gray-900">Dashboard Overview</h1>
             <p class="text-gray-600">Selamat datang, {{ auth()->user()->name }}</p>
         </div>
-        <a href="{{ route('home') }}" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">
-            Lihat Website
-        </a>
+
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2">
+                <label class="text-sm text-gray-600">Periode:</label>
+                <select id="dashboard-period-select" class="px-3 py-2 border rounded-lg">
+                    <option value="7" {{ request('period', 7) == 7 ? 'selected' : '' }}>7 Hari</option>
+                    <option value="14" {{ request('period') == 14 ? 'selected' : '' }}>14 Hari</option>
+                    <option value="30" {{ request('period') == 30 ? 'selected' : '' }}>30 Hari</option>
+                </select>
+            </div>
+
+            <a href="{{ route('home') }}" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">
+                Lihat Website
+            </a>
+        </div>
     </div>
 
     <!-- Stats -->
@@ -113,30 +125,117 @@
         </div>
     </div>
 
-    <script>
-        const chartData = @json($chartData);
-        new Chart(document.getElementById('salesChart'), {
-            type: 'line',
-            data: {
-                labels: chartData.map(d => d.dt),
-                datasets: [{
-                    label: 'Jumlah Pesanan',
-                    data: chartData.map(d => d.cnt),
-                    borderColor: '#CD7F32',
-                    backgroundColor: 'rgba(205, 127, 50, 0.1)',
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { display: true, position: 'top' }
-                },
-                scales: {
-                    y: { beginAtZero: true, ticks: { precision: 0 } }
+    <script nonce="{{ $cspNonce ?? '' }}">
+        (function(){
+            const ctx = document.getElementById('salesChart');
+            let salesChart = null;
+
+            function createChart(labels, counts, revenues) {
+                if (salesChart) {
+                    salesChart.data.labels = labels;
+                    salesChart.data.datasets[0].data = counts;
+                    salesChart.data.datasets[1].data = revenues;
+                    salesChart.update();
+                    return;
+                }
+
+                salesChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Jumlah Pesanan',
+                                data: counts,
+                                borderColor: '#CD7F32',
+                                backgroundColor: 'rgba(205, 127, 50, 0.12)',
+                                fill: true,
+                                tension: 0.4,
+                                yAxisID: 'orders'
+                            },
+                            {
+                                label: 'Pendapatan (Rp)',
+                                data: revenues,
+                                borderColor: '#16A34A',
+                                backgroundColor: 'rgba(16,163,74,0.08)',
+                                fill: true,
+                                tension: 0.4,
+                                yAxisID: 'revenue',
+                                hidden: false
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: true, position: 'top' },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.dataset.label || '';
+                                        const value = context.parsed.y;
+                                        if (label.toLowerCase().includes('pendapatan') || label.toLowerCase().includes('revenue')) {
+                                            return label + ': Rp ' + Number(value).toLocaleString('id-ID');
+                                        }
+                                        return label + ': ' + Number(value).toLocaleString('id-ID');
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            orders: {
+                                type: 'linear',
+                                position: 'left',
+                                beginAtZero: true,
+                                ticks: {
+                                    precision: 0,
+                                    callback: function(value) {
+                                        return Number(value).toLocaleString('id-ID');
+                                    }
+                                }
+                            },
+                            revenue: {
+                                type: 'linear',
+                                position: 'right',
+                                beginAtZero: true,
+                                grid: { drawOnChartArea: false },
+                                ticks: {
+                                    callback: function(value) {
+                                        return 'Rp ' + Number(value).toLocaleString('id-ID');
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            async function loadChart(period) {
+                try {
+                    const url = new URL('{{ route('admin.dashboard.data') }}', window.location.origin);
+                    url.searchParams.set('period', period);
+                    const resp = await fetch(url.toString(), { credentials: 'same-origin' });
+                    if (!resp.ok) throw new Error('Network error');
+                    const data = await resp.json();
+                    const labels = data.map(d => d.dt);
+                    const counts = data.map(d => d.cnt);
+                    const revenues = data.map(d => d.revenue);
+                    createChart(labels, counts, revenues);
+                } catch (err) {
+                    console.error('Failed to load chart data', err);
                 }
             }
-        });
+
+            const periodSelect = document.getElementById('dashboard-period-select');
+            if (periodSelect) {
+                periodSelect.addEventListener('change', () => {
+                    loadChart(periodSelect.value);
+                });
+            }
+
+            // initial load using current select value
+            const initialPeriod = periodSelect ? periodSelect.value : 7;
+            loadChart(initialPeriod);
+        })();
     </script>
 </x-admin-layout>

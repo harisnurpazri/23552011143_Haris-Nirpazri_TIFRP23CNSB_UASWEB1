@@ -2,12 +2,33 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Produk;
 use App\Models\Order;
+use App\Models\Produk;
 use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
+    /**
+     * Helper to check admin and return proper response
+     */
+    protected function denyIfAdmin(Request $request)
+    {
+        $user = $request->user();
+        if ($user && method_exists($user, 'isAdmin') && $user->isAdmin()) {
+            if ($request->expectsJson() || $request->wantsJson()) {
+                return response()->json(['message' => 'Admin tidak diizinkan melakukan pembelian.'], 403);
+            }
+
+            if (app('router')->has('admin.dashboard')) {
+                return redirect()->route('admin.dashboard')->with('error', 'Admin tidak dapat melakukan pembelian.');
+            }
+
+            return redirect('/')->with('error', 'Admin tidak dapat melakukan pembelian.');
+        }
+
+        return null;
+    }
+
     /**
      * Display cart page
      */
@@ -17,7 +38,7 @@ class CartController extends Controller
         $items = [];
         $total = 0;
 
-        if (!empty($cart)) {
+        if (! empty($cart)) {
             foreach ($cart as $productId => $qty) {
                 $product = Produk::find($productId);
                 if ($product) {
@@ -43,14 +64,21 @@ class CartController extends Controller
      */
     public function add(Request $request, $id)
     {
+        // Admin check is handled by 'not-admin' middleware, so no need to check here
+
         $product = Produk::findOrFail($id);
-        
-        if (!$product->isInStock()) {
+
+        if (! $product->isInStock()) {
+            // For AJAX callers, return JSON error; otherwise normal redirect back
+            if ($request->ajax() || $request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
+                return response()->json(['success' => false, 'message' => 'Produk tidak tersedia.'], 422);
+            }
+
             return back()->with('error', 'Produk tidak tersedia.');
         }
 
         $cart = session('cart', []);
-        
+
         if (isset($cart[$id])) {
             $cart[$id]++;
         } else {
@@ -59,7 +87,8 @@ class CartController extends Controller
 
         session(['cart' => $cart]);
 
-        if ($request->wantsJson()) {
+        // If this was called via AJAX/fetch, always return JSON so frontend can update UI reliably.
+        if ($request->ajax() || $request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
             return response()->json([
                 'success' => true,
                 'message' => 'Produk ditambahkan ke keranjang!',
@@ -67,6 +96,7 @@ class CartController extends Controller
             ]);
         }
 
+        // Otherwise perform normal redirect back for classic form submit
         return back()->with('success', 'Produk ditambahkan ke keranjang!');
     }
 
@@ -75,12 +105,14 @@ class CartController extends Controller
      */
     public function update(Request $request, $id)
     {
+        // Admin check is handled by 'not-admin' middleware
+
         $request->validate([
             'qty' => 'required|integer|min:1',
         ]);
 
         $cart = session('cart', []);
-        
+
         if (isset($cart[$id])) {
             $cart[$id] = $request->qty;
             session(['cart' => $cart]);
@@ -94,8 +126,10 @@ class CartController extends Controller
      */
     public function remove($id)
     {
+        // Admin check is handled by 'not-admin' middleware
+
         $cart = session('cart', []);
-        
+
         if (isset($cart[$id])) {
             unset($cart[$id]);
             session(['cart' => $cart]);
@@ -109,8 +143,13 @@ class CartController extends Controller
      */
     public function checkout()
     {
+        $request = request();
+        if ($resp = $this->denyIfAdmin($request)) {
+            return $resp;
+        }
+
         $cart = session('cart', []);
-        
+
         if (empty($cart)) {
             return redirect()->route('home')->with('error', 'Keranjang kosong!');
         }
@@ -142,8 +181,12 @@ class CartController extends Controller
      */
     public function processCheckout(Request $request)
     {
+        if ($resp = $this->denyIfAdmin($request)) {
+            return $resp;
+        }
+
         $cart = session('cart', []);
-        
+
         if (empty($cart)) {
             return redirect()->route('home')->with('error', 'Keranjang kosong!');
         }
@@ -186,10 +229,27 @@ class CartController extends Controller
      */
     public function invoice($id)
     {
+        $request = request();
+        if ($resp = $this->denyIfAdmin($request)) {
+            return $resp;
+        }
+
         $order = Order::where('user_id', auth()->id())->findOrFail($id);
-        
+
         return view('cart.invoice', [
             'order' => $order,
+        ]);
+    }
+
+    /**
+     * Return simple cart count as JSON (for JS fallback)
+     */
+    public function count(Request $request)
+    {
+        $cart = $request->session()->get('cart', []);
+
+        return response()->json([
+            'cartCount' => array_sum($cart),
         ]);
     }
 }

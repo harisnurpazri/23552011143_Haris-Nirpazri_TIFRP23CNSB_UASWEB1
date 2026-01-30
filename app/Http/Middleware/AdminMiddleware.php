@@ -15,10 +15,21 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
+        // If the user is not authenticated, redirect to beranda (home)
+        if (! auth()->check()) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Unauthenticated'], 401);
+            }
+
+            return redirect('/');
+        }
+
+        // If authenticated but not admin, redirect to home with error
+        if (! auth()->user()->isAdmin()) {
             if ($request->expectsJson()) {
                 return response()->json(['message' => 'Unauthorized'], 403);
             }
+
             return redirect('/')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
         }
 
