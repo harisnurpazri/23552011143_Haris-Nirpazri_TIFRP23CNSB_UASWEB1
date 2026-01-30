@@ -1,114 +1,142 @@
 # Meubel Dua Putra (Meubeul Harisproject)
 
-Singkat: aplikasi e‑commerce katalog furniture berbasis Laravel — UI yang sudah diperbarui di branch `feature/ui-redesign` dan sekarang digabung ke `main`.
+> A modern Laravel-based e‑commerce catalogue for furniture — visual-first homepage, product management, and admin features.
 
-**Fitur Utama**
-- Halaman beranda yang kaya visual (`resources/views/home.blade.php`).
-- Manajemen produk, kategori, pesanan, edukasi, dan chat.
-- Styling modern dengan Tailwind-like utilities dan asset gambar di `public/images/`.
-- Skrip bantu untuk membuat database: `scripts/create_db.php` dan SQL dump `meubeul_db.sql`.
+---
 
-**Persyaratan**
-- PHP 8.x
-- Composer
-- MySQL (atau MariaDB)
-- Node.js & npm (untuk build frontend)
-- Laravel 10+ (sesuaikan dengan `composer.json`)
+## Konsep Aplikasi
 
-**Instalasi Lokal**
-1. Clone repo dan masuk folder proyek:
+Meubeul Harisproject adalah aplikasi katalog dan toko online furniture yang menekankan kualitas produk, pengalaman visual, dan kemudahan manajemen. Aplikasi ini menggabungkan katalog produk, kategori, fitur edukasi, sistem pesanan, dan komunikasi (chat) antar pengguna dan admin.
+
+Fokus utama:
+- Menampilkan koleksi produk secara menarik (lihat `resources/views/home.blade.php`).
+- Backend sederhana untuk mengelola produk, kategori, pesanan, dan pengguna.
+- UI yang responsif dan mudah disesuaikan.
+
+---
+
+## Ringkasan Fitur
+- Halaman beranda dengan hero visual dan highlight produk
+- Manajemen Produk & Kategori
+- Sistem Pesanan (Orders)
+- Chat / Messaging untuk dukungan pelanggan
+- Panel Admin untuk pengelolaan (routes: `/admin` atau area admin disesuaikan di konfigurasi)
+- Skrip bantu dan dump DB (`scripts/create_db.php`, `meubeul_db.sql`)
+
+---
+
+## Struktur Proyek (lokasi penting)
+
+- `app/` — Logika aplikasi: Models, Controllers, Middleware, Providers
+- `bootstrap/` — Bootstrapping Laravel
+- `config/` — Konfigurasi aplikasi
+- `database/` — Migrations, Seeders, dan dump `meubeul_db.sql`
+- `public/` — Aset publik (gambar di `public/images/`, compiled assets di `public/build/` jika ada)
+- `resources/views/` — Blade templates (utama: `home.blade.php`)
+- `resources/js/` & `resources/css/` — sumber frontend
+- `routes/` — route definitions (`web.php`, `auth.php`, dsb.)
+- `scripts/` — utilitas proyek (mis. `create_db.php`)
+
+---
+
+## Teknologi & Stack
+
+- Backend: PHP (Laravel)
+- Database: MySQL / MariaDB
+- Frontend build: Node.js, npm, Vite (atau mix sesuai `package.json`)
+- Styling: Tailwind-like utility classes (inline and compiled CSS)
+- Version control: Git (remote GitHub repository)
+
+---
+
+## Cara Menjalankan (singkat)
+1. Clone repo dan masuk ke folder:
 
 ```bash
-git clone https://github.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1.git
-cd 23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1
+git clone <repo-url>
+cd <project-folder>
 ```
 
-2. Install dependensi PHP dan JS:
+2. Install dependensi:
 
 ```bash
 composer install
 npm install
 ```
 
-3. Buat file environment dari contoh (atau salin `.env.example`) dan sesuaikan:
+3. Siapkan environment:
 
 ```bash
 cp .env.example .env
-# lalu edit .env (DB_CONNECTION, DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD)
+# Edit .env sesuai konfigurasi lokal (DB_CONNECTION, DB_HOST, DB_DATABASE, DB_USERNAME, DB_PASSWORD)
 ```
 
-File penting: `/.env` (kolom `DB_DATABASE` default sekarang `meubeul_db`).
-
 4. Buat database lokal (opsi):
-- Jalankan skrip PHP bawaan jika Anda menggunakan konfigurasi `root` tanpa password:
 
 ```bash
 php scripts/create_db.php
+# atau impor meubeul_db.sql lewat phpMyAdmin / mysql client
 ```
 
-- Atau buat manual lewat MySQL/phpMyAdmin:
-
-```sql
-CREATE DATABASE meubeul_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-```
-
-- Jika ingin menggunakan dump yang disertakan: impor `meubeul_db.sql` ke server MySQL.
-
-5. Bersihkan cache config dan jalankan migrasi:
+5. Jalankan migrasi dan seed (jika ada):
 
 ```bash
 php artisan key:generate
 php artisan config:clear
-php artisan migrate --force
-php artisan db:seed # jika ada seeders yang relevan
+php artisan migrate
+php artisan db:seed
 ```
 
-6. Build frontend (development):
+6. Jalankan server lokal dan build frontend:
 
 ```bash
 npm run dev
-# atau build produksi
-npm run build
-```
-
-7. Jalankan server lokal:
-
-```bash
 php artisan serve
 ```
 
-Akses di `http://localhost:8000` (atau sesuai `APP_URL` di `.env`).
+---
 
-**Catatan penting**
-- Jika `.env` diubah dan perubahan tidak terbaca, jalankan `php artisan config:clear`.
-- Jika push Git gagal karena RPC/curl, saya menaikkan `http.postBuffer` saat push yang bermasalah:
+## Host / Demo
 
-```bash
-git config http.postBuffer 524288000
-git push origin <branch>
-```
+Jika sudah dideploy, masukkan URL hasil hosting di bawah ini (jangan sertakan kredensial):
 
-- File skrip pembuatan DB sementara ada di `scripts/create_db.php` — hapus jika tidak ingin disimpan di repo publik.
+- Demo / Hosting: https://example.com  <!-- Ganti dengan URL hosting Anda -->
 
-**Testing**
-- Jalankan unit/feature tests (jika ada):
-
-```bash
-./vendor/bin/phpunit
-```
-
-**Struktur penting**
-- `app/` — Controllers, Models, Providers
-- `resources/views/` — Blade views (lihat `home.blade.php` untuk hero UI)
-- `public/images/` — aset gambar yang digunakan oleh UI
-- `scripts/` — skrip bantu seperti `create_db.php` dan `create_test_db.php`
-
-**Kontribusi & PR**
-- Buat branch dari `main` bernama deskriptif, lakukan perubahan, tes lokal, lalu buka Pull Request ke `main`.
-
-**License & Kontak**
-- Tidak ada lisensi eksplisit di repo — tambahkan `LICENSE` jika perlu.
-- Untuk pertanyaan, hubungi pemilik repo atau pembuat PR.
+Tambahkan URL aktual di file ini agar tim dan reviewer mudah mengakses demo.
 
 ---
-Generated on 2026-01-30 via workspace helper.
+
+## Akses Admin & Login
+
+Keterangan lokasi (tanpa menyebutkan kredensial):
+- Halaman login pengguna: `/login`
+- Halaman dashboard/admin (umumnya): `/admin` atau `/dashboard` (tergantung konfigurasi route). Periksa controller dan route di `routes/web.php` untuk path pasti.
+
+Catatan: Jangan menyimpan username/password nyata di repo. Simpan kredensial admin di password manager atau environment saat deploy.
+
+---
+
+## Keamanan & Sensitivitas
+
+- Hindari menambahkan file yang berisi kredensial ke repo (mis. `.env` atau dump berisi password). Gunakan `.gitignore` untuk mengecualikannya.
+- Skrip `scripts/create_db.php` hanya berfungsi untuk lingkungan pengembangan lokal; tinjau sebelum menjalankan di server produksi.
+
+---
+
+## Kontribusi
+
+- Buat branch baru dari `main` untuk perubahan baru: `git checkout -b feature/nama-fitur`
+- Buat commit kecil dan deskriptif, jalankan tes lokal, lalu buka Pull Request ke `main`.
+
+---
+
+## Kontak & Lisensi
+
+- Jika perlu bantuan, hubungi pemilik repository atau maintainer.
+- Tidak ada lisensi eksplisit — tambahkan `LICENSE` jika perlu menentukan penggunaan.
+
+---
+
+_README ini dirancang untuk menampilkan konsep aplikasi, struktur, teknologi, dan cara mengakses demo serta area admin tanpa menyertakan informasi sensitif._
+
+Generated on 2026-01-30.
