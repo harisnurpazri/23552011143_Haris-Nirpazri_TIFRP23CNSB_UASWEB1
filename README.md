@@ -113,6 +113,8 @@ Keterangan lokasi (tanpa menyebutkan kredensial):
 - Halaman dashboard/admin (umumnya): `/admin` atau `/dashboard` (tergantung konfigurasi route). Periksa controller dan route di `routes/web.php` untuk path pasti.
 
 Catatan: Jangan menyimpan username/password nyata di repo. Simpan kredensial admin di password manager atau environment saat deploy.
+- username: admin@meubel.com
+- password: Admin123
 
 ---
 
@@ -123,20 +125,3 @@ Catatan: Jangan menyimpan username/password nyata di repo. Simpan kredensial adm
 
 ---
 
-## Kontribusi
-
-- Buat branch baru dari `main` untuk perubahan baru: `git checkout -b feature/nama-fitur`
-- Buat commit kecil dan deskriptif, jalankan tes lokal, lalu buka Pull Request ke `main`.
-
----
-
-## Kontak & Lisensi
-
-- Jika perlu bantuan, hubungi pemilik repository atau maintainer.
-- Tidak ada lisensi eksplisit — tambahkan `LICENSE` jika perlu menentukan penggunaan.
-
----
-
-_README ini dirancang untuk menampilkan konsep aplikasi, struktur, teknologi, dan cara mengakses demo serta area admin tanpa menyertakan informasi sensitif._
-
-Generated on 2026-01-30.
