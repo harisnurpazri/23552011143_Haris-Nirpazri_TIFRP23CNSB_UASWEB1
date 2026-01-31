@@ -1,10 +1,6 @@
-FROM php:8.2-apache
+FROM php:8.2-cli
 
-# Pastikan hanya 1 MPM (prefork)
-RUN a2dismod mpm_event mpm_worker mpm_prefork || true \
-    && a2enmod mpm_prefork
-
-# Install dependency + PHP extensions
+# Install system deps
 RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg-dev \
@@ -15,12 +11,11 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd pdo pdo_mysql
 
-# Enable rewrite
-RUN a2enmod rewrite
-
-WORKDIR /var/www/html
+WORKDIR /app
 COPY . .
 
-RUN chown -R www-data:www-data /var/www/html
+RUN chown -R www-data:www-data /app
 
-EXPOSE 80
+EXPOSE 8080
+
+CMD php -S 0.0.0.0:8080 -t public
