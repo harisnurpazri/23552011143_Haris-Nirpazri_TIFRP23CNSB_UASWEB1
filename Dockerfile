@@ -11,11 +11,16 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd pdo pdo_mysql
 
+# Install Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
 WORKDIR /app
 COPY . .
+
+# 🔥 INI YANG KURANG
+RUN composer install --no-dev --optimize-autoloader
 
 RUN chown -R www-data:www-data /app
 
 EXPOSE 8080
-
 CMD php -S 0.0.0.0:8080 -t public
