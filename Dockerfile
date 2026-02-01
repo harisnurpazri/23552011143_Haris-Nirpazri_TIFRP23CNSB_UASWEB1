@@ -1,30 +1,27 @@
 FROM php:8.2-cli
 
-# Install system dependencies
+# System deps
 RUN apt-get update && apt-get install -y \
+    git zip unzip \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
-    zip \
-    unzip \
-    git \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd pdo pdo_mysql
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Set working directory
 WORKDIR /app
 
-# Copy project files
-COPY . .
+# COPY composer files FIRST (INI PENTING)
+COPY composer.json composer.lock ./
 
-# 🔥 WAJIB ADA — INI YANG MEMBUAT vendor/
+# Install deps
 RUN composer install --no-dev --optimize-autoloader
 
-# Expose port Railway
-EXPOSE 8080
+# Copy the rest of the app
+COPY . .
 
-# Start Laravel
+EXPOSE 8080
 CMD php -S 0.0.0.0:8080 -t public
