@@ -1,6 +1,6 @@
 FROM php:8.2-cli
 
-# Install system deps
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg-dev \
@@ -14,13 +14,17 @@ RUN apt-get update && apt-get install -y \
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
+# Set working directory
 WORKDIR /app
+
+# Copy project files
 COPY . .
 
-# 🔥 INI YANG KURANG
+# 🔥 WAJIB ADA — INI YANG MEMBUAT vendor/
 RUN composer install --no-dev --optimize-autoloader
 
-RUN chown -R www-data:www-data /app
-
+# Expose port Railway
 EXPOSE 8080
+
+# Start Laravel
 CMD php -S 0.0.0.0:8080 -t public
