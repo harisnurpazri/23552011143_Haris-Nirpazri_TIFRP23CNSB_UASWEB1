@@ -100,7 +100,7 @@ php artisan serve
 
 Jika sudah dideploy, masukkan URL hasil hosting di bawah ini (jangan sertakan kredensial):
 
-- Demo / Hosting: https://example.com  <!-- Ganti dengan URL hosting Anda -->
+- Demo / Hosting: https://meubelku.my.id
 
 Tambahkan URL aktual di file ini agar tim dan reviewer mudah mengakses demo.
 
