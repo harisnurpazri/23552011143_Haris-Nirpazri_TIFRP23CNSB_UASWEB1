@@ -115,7 +115,7 @@
                         </div>
 
                         <!-- Enhanced Call to Action Button (text-only, prominent) -->
-                        <div class="pt-4 animate-fadeInUp delay-600">
+                        <div class="pt-4 animate-fadeInUp delay-600 relative z-20">
                             <div class="relative inline-block">
                                 <a href="#products" class="inline-block bg-amber-500 hover:bg-amber-600 text-white font-extrabold uppercase tracking-wide py-4 px-10 rounded-2xl shadow-xl hover:shadow-2xl transition transform hover:scale-105" style="letter-spacing:0.06em;">
                                     Mulai Berbelanja
@@ -126,8 +126,8 @@
                             </div>
                         </div>
 
-                        <!-- Floating Statistics -->
-                        <div class="absolute bottom-8 left-8 hidden lg:flex space-x-6 animate-fadeInUp delay-800">
+                        <!-- Floating Statistics - positioned below button to avoid overlap -->
+                        <div class="pt-16 hidden lg:flex space-x-6 animate-fadeInUp delay-800">
                             <div class="bg-black/60 backdrop-blur-md rounded-2xl p-4 border border-white/30 shadow-2xl hover:bg-black/70 transition-all duration-300 cursor-pointer transform hover:scale-105">
                                 <div class="text-2xl font-black text-white" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.8)">1000+</div>
                                 <div class="text-xs text-gray-200 font-medium" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8)">Produk Premium</div>
@@ -170,7 +170,7 @@
             <div class="absolute top-1/3 right-20 w-24 h-24 bg-gradient-to-l from-orange-100 to-transparent rounded-full opacity-5 animate-floating delay-800"></div>
 
             <!-- Subtle grid pattern -->
-            <div class="absolute inset-0 opacity-[0.02] bg-[url('data:image/svg+xml,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g fill="%23000000" fill-opacity="0.1"><rect width="1" height="1"/></g></svg>')]"></div>
+            <div class="absolute inset-0 opacity-[0.015] bg-[url('data:image/svg+xml,<svg width=&quot;40&quot; height=&quot;40&quot; viewBox=&quot;0 0 40 40&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;><g fill=&quot;%23f59e0b&quot; fill-opacity=&quot;0.03&quot; fill-rule=&quot;evenodd&quot;><path d=&quot;m0 40l40-40h-40v40zm40 0v-40h-40l40 40z&quot;/></g></svg>')]"></div>
         </div>
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
