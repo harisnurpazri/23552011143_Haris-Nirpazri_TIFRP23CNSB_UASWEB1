@@ -198,7 +198,7 @@ Catatan: Jangan menyimpan username/password nyata di repo. Simpan kredensial adm
 [https://www.instagram.com/USERNAME_IG_KAMU](https://www.instagram.com/harisssnp10?igsh=MWJkcXFtZWlvNWdmdA==)
 
 📺 **YouTube Video Demo APP**  
-https://www.youtube.com/@CHANNEL_KAMU
+https://youtu.be/KWTonc0cskw
 
 
 
