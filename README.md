@@ -188,6 +188,19 @@ Catatan: Jangan menyimpan username/password nyata di repo. Simpan kredensial adm
 
 <img src="https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/30.png" width="800"/>
 
+---
+
+---
+
+## 🔗 Media Sosial & Dokumentasi Video
+
+📸 **Instagram**  
+[https://www.instagram.com/USERNAME_IG_KAMU](https://www.instagram.com/harisssnp10?igsh=MWJkcXFtZWlvNWdmdA==)
+
+📺 **YouTube Video Demo APP**  
+https://www.youtube.com/@CHANNEL_KAMU
+
+
 
 ---
 
