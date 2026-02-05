@@ -123,44 +123,71 @@ Catatan: Jangan menyimpan username/password nyata di repo. Simpan kredensial adm
 - Hindari menambahkan file yang berisi kredensial ke repo (mis. `.env` atau dump berisi password). Gunakan `.gitignore` untuk mengecualikannya.
 - Skrip `scripts/create_db.php` hanya berfungsi untuk lingkungan pengembangan lokal; tinjau sebelum menjalankan di server produksi.
 
----
 
 ---
 
 ## 📸 Dokumentasi Sistem
 
-![01](https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/03CA79C1-8D1A-4121-918A-CC41606690A2.png)
-![02](https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/11432B56-4286-4A1A-9629-E40B207B2D5D.png)
-![03](https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/1D54CE03-ECE7-486C-B5DC-E7809DABE15A.png)
-![04](https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/23A64AD5-AEFE-4480-8388-FAEEDC8DA1D6.png)
-![05](https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/25E13D1E-E222-4350-9AB8-8721458589DE.png)
-![06](https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/27FA6C64-4C17-4607-8F8C-974079879D22.png)
-![07](https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/2857C037-00B2-4241-AC24-89B1B7E05A04.png)
-![08](https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/2A8E1955-C103-4C6D-8E6C-AAD339FFD9DF.png)
-![09](https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/51A2A0ED-128A-431A-BFB0-F6EE503ABAAD.png)
-![10](https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/67D7194F-9E85-4414-AA07-E419843B0AF8.png)
-![11](https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/68859A08-D110-413E-91E7-ED274CB88658.png)
-![12](https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/68DADB9E-92F0-4D20-B13B-54424176E211.png)
-![13](https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/6BE1CEC9-159F-4D3C-8C63-756C820C6213.png)
-![14](https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/70E1703C-5A76-4C1F-8537-19E7FFA3C28C.png)
-![15](https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/7D09B628-B937-4351-8EEA-3CF18687FF28.png)
-![16](https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/85AD60C8-E2E4-46BF-B195-F04E857A59B7.png)
-![17](https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/8887C9A6-4728-4123-9A03-B73B0ACCEEA7.png)
-![18](https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/8F77BECF-69AD-4036-A737-56964742844F.png)
-![19](https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/9CA55078-1FB5-4047-8C6D-CB0E250D1BC7.png)
-![20](https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/AF6B63E7-41C6-4C2C-906E-82C01AE429A4.png)
-![21](https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/B49D8565-3FA2-447C-AA36-F1FEF3A9F08B.png)
-![22](https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/BEED3A3B-8E2D-4C45-83E5-C4CAD3731A53.png)
-![23](https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/CF73E8D5-90BE-43B0-8CD9-16B8716FFCAD.png)
-![24](https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/DA3082F0-6A8F-49A8-9976-9AB8FF020FEE.png)
-![25](https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/DBA72CF1-17E3-4BEC-8154-A7851DC9E4D1.png)
-![26](https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/DBB3D56C-1164-451D-B5BC-51967FAC80F6.png)
-![27](https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/E0C0A949-7181-4508-AC27-BD974877CA3E.png)
-![28](https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/EB234367-7CFB-4A0D-B5F1-F673A8BCBEF5.png)
-![29](https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/F29A573C-55BC-40DE-854C-8123D864EE18.png)
-![30](https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/FC44C5F5-31D5-4690-AF2A-3A696F920128.png)
+<img src="https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/01.png" width="800"/>
 
----
+<img src="https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/02.png" width="800"/>
+
+<img src="https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/03.png" width="800"/>
+
+<img src="https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/04.png" width="800"/>
+
+<img src="https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/05.png" width="800"/>
+
+<img src="https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/06.png" width="800"/>
+
+<img src="https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/07.png" width="800"/>
+
+<img src="https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/08.png" width="800"/>
+
+<img src="https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/09.png" width="800"/>
+
+<img src="https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/10.png" width="800"/>
+
+<img src="https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/11.png" width="800"/>
+
+<img src="https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/12.png" width="800"/>
+
+<img src="https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/13.png" width="800"/>
+
+<img src="https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/14.png" width="800"/>
+
+<img src="https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/15.png" width="800"/>
+
+<img src="https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/16.png" width="800"/>
+
+<img src="https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/17.png" width="800"/>
+
+<img src="https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/18.png" width="800"/>
+
+<img src="https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/19.png" width="800"/>
+
+<img src="https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/20.png" width="800"/>
+
+<img src="https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/21.png" width="800"/>
+
+<img src="https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/22.png" width="800"/>
+
+<img src="https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/23.png" width="800"/>
+
+<img src="https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/24.png" width="800"/>
+
+<img src="https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/25.png" width="800"/>
+
+<img src="https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/26.png" width="800"/>
+
+<img src="https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/27.png" width="800"/>
+
+<img src="https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/28.png" width="800"/>
+
+<img src="https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/29.png" width="800"/>
+
+<img src="https://raw.githubusercontent.com/harisnurpazri/23552011143_Haris-Nirpazri_TIFRP23CNSB_UASWEB1/main/Dokumentasi/30.png" width="800"/>
+
 
 ---
 
